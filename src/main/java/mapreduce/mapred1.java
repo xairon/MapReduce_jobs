@@ -87,7 +87,7 @@ public class mapred1 {
                 job);
         job.setMapOutputKeyClass(ImmutableBytesWritable.class);
         job.setMapOutputValueClass(Put.class);
-        job.setNumReduceTasks(0);
+
 
         boolean b = job.waitForCompletion(true);
         if (!b) {
