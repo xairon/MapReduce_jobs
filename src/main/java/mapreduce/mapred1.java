@@ -85,8 +85,8 @@ public class mapred1 {
                 "21402752Q2",      // output table
                 mapred1.Reducer1.class,  // reducer class
                 job);
-        job.setMapOutputKeyClass(ImmutableBytesWritable.class);
-        job.setMapOutputValueClass(Put.class);
+        //job.setMapOutputKeyClass(ImmutableBytesWritable.class);
+        //job.setMapOutputValueClass(Put.class);
 
 
         boolean b = job.waitForCompletion(true);
