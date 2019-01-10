@@ -30,7 +30,7 @@ public class mapred1 {
             String oKey = inKey.split("/")[0];
             // get sales column in byte format first and then convert it to
             // string (as it is stored as string from hbase shell)
-            byte[] bnotes = value.getValue(Bytes.toBytes("cf1"), Bytes.toBytes("notes"));
+            byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("G"));
             String snotes = new String(bnotes);
             Integer notes = new Integer(snotes);
             // emit date and sales values
@@ -59,7 +59,7 @@ public class mapred1 {
 
                 Put insHBase = new Put(key.get());
                 // insert sum value to hbase
-                insHBase.add(Bytes.toBytes("cf1"), Bytes.toBytes("sum"), Bytes.toBytes(sum/compteur));
+                insHBase.add(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(sum/compteur));
                 // write data to Hbase table
                 context.write(key, insHBase);
 

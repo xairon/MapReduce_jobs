@@ -21,7 +21,7 @@ public class MainMap {
 // set other scan attrs
 
         TableMapReduceUtil.initTableMapperJob(
-                "A:S",      // input table
+                "A:G",      // input table
                 scan,             // Scan instance to control CF and attribute selection
                 mapred1.Mapper1.class,   // mapper class
                 ImmutableBytesWritable.class,             // mapper output key
