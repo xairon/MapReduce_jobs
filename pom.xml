@@ -77,7 +77,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>fully.qualified.MainClass</mainClass>
+                            <mainClass>mapreduce.mapred1</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
