@@ -59,9 +59,9 @@ public class mapred1 {
 
                 Put insHBase = new Put(key.get());
                 // insert sum value to hbase
-                insHBase.add(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(sum/compteur));
+                insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(sum/compteur));
                 // write data to Hbase table
-                context.write(key, insHBase);
+                context.write(null, insHBase);
 
         }
     }
@@ -85,6 +85,8 @@ public class mapred1 {
                 "21402752Q2",      // output table
                 mapred1.Reducer1.class,  // reducer class
                 job);
+        job.setMapOutputKeyClass(ImmutableBytesWritable.class);
+        job.setMapOutputValueClass(Put.class);
         job.setNumReduceTasks(0);
 
         boolean b = job.waitForCompletion(true);
