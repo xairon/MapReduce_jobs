@@ -16,7 +16,7 @@ import org.apache.hadoop.hbase.mapreduce.TableMapper;
 public class mapred2 {
 
 
-        static class Mapper2 extends TableMapper<ImmutableBytesWritable, Text> {
+        static class Mapper2 extends TableMapper<Text, Text> {
 
 
             public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
@@ -26,19 +26,20 @@ public class mapred2 {
                 // set new key having only date
                 String oKey = inKey.split("/")[0];
                 String oKey2 = inKey.split("/")[2];
+                String keymoyenne = oKey2+"/"+Integer.toString(9999-Integer.valueOf(oKey));
                 // get sales column in byte format first and then convert it to
                 // string (as it is stored as string from hbase shell)
                 byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("G"));
                 String snotes = new String(bnotes);
                 Configuration c = HBaseConfiguration.create();      // Instantiate Configuration class
                 HTable table = new HTable(c, "A:C"); // Instantiate HTable class
-                Get g = new Get(Bytes.toBytes(oKey2));        // Instantiate Get class
+                Get g = new Get(Bytes.toBytes(keymoyenne));        // Instantiate Get class
                 Result result = table.get(g);      // Read the data
                 byte [] nom = result.getValue(Bytes.toBytes("#"),Bytes.toBytes("N"));
                 String name = Bytes.toString(nom);      // Print the values
-                System.out.println("name: " + name);
+
                 // emit date and sales values
-                context.write(new ImmutableBytesWritable(oKey.getBytes()), new Text(snotes));
+                context.write(new Text(name+"/"+oKey2), new Text(snotes));
             }
         }
             public static void main(String[] args) throws Exception {
@@ -54,7 +55,7 @@ public class mapred2 {
                         "A:G",      // input table
                         scan,             // Scan instance to control CF and attribute selection
                         mapred2.Mapper2.class,   // mapper class
-                        ImmutableBytesWritable.class,             // mapper output key
+                        Text.class,             // mapper output key
                         IntWritable.class,             // mapper output value
                         job);
                 TableMapReduceUtil.initTableReducerJob(

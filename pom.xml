@@ -13,7 +13,7 @@
     <properties>
         <java.version>1.8</java.version>
         <hbase.version>1.4.8</hbase.version>
-        <start-class>mapreduce.mapred1</start-class>
+        <start-class>mapreduce.mapred2</start-class>
     </properties>
 
     <dependencies>
