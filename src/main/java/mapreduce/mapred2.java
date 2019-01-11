@@ -47,7 +47,7 @@ public class mapred2 {
                 Job job = Job.getInstance(config, "TestconfigMapper");
                 job.setJarByClass(mapred2.class);
                 Scan scan = new Scan();
-                scan.setCaching(500);        // 1 is the default in Scan, which will be bad for MapReduce jobs
+                scan.setCaching(500000);        // 1 is the default in Scan, which will be bad for MapReduce jobs
                 scan.setCacheBlocks(false);  // don't set to true for MR jobs
 // set other scan attrs
 
