@@ -49,12 +49,13 @@ public class mapred1 {
                 int sum = 0;
                 int compteur = 0;
                 // loop through different sales vales and add it to sum
-                for (IntWritable moyenne : values) {
-                    Integer intmoyenne = new Integer(moyenne.toString());
-                    sum += intmoyenne;
+                for (IntWritable inputvalue : values) {
+
+                    sum += inputvalue.get();
                     compteur++;
                 }
                 int moyenne = sum/compteur;
+                System.out.println(moyenne);
                 // create hbase put with rowkey as date
 
                 Put insHBase = new Put(key.get());
