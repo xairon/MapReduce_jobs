@@ -15,10 +15,11 @@ import org.apache.hadoop.hbase.mapreduce.TableMapper;
 public class mapred2 {
 
 
-        static class Mapper2 extends TableMapper<Text, IntWritable> {
+        static class Mapper2 extends TableMapper<ImmutableBytesWritable, IntWritable> {
 
             private Table table;
             private Connection conn;
+            private String key = null;
 
             @Override
             protected void setup(Context context) throws IOException, InterruptedException {
@@ -58,6 +59,7 @@ public class mapred2 {
 
                     byte[] nom = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("N"));
                     name = Bytes.toString(nom);
+                     key = name+"/"+oKey2;
 
                 }
                 finally {
@@ -68,7 +70,7 @@ public class mapred2 {
                     // Read the data
 
                 // emit date and sales values
-                context.write(new Text(name+"/"+oKey2), new IntWritable(Integer.valueOf(snotes)));
+                context.write(new ImmutableBytesWritable(key.getBytes()), new IntWritable(Integer.valueOf(snotes)));
             }
 
         }
