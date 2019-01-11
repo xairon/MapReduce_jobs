@@ -15,7 +15,7 @@ import org.apache.hadoop.hbase.mapreduce.TableMapper;
 public class mapred2 {
 
 
-        static class Mapper2 extends TableMapper<Text, Text> {
+        static class Mapper2 extends TableMapper<Text, IntWritable> {
 
             private Table table;
             private Connection conn;
@@ -68,11 +68,11 @@ public class mapred2 {
                     // Read the data
 
                 // emit date and sales values
-                context.write(new Text(name+"/"+oKey2), new Text(snotes));
+                context.write(new Text(name+"/"+oKey2), new IntWritable(Integer.valueOf(snotes)));
             }
 
         }
-    public static class Reducer2 extends TableReducer<Text, IntWritable, Text> {
+    public static class Reducer2 extends TableReducer<ImmutableBytesWritable, IntWritable, ImmutableBytesWritable> {
 
         public void reduce(ImmutableBytesWritable key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
