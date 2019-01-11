@@ -57,7 +57,7 @@ public class mapred2 {
 
                 }
                 finally {
-                    table.close();
+
                 }
 
 
