@@ -17,16 +17,18 @@ public class mapred2 {
         static class Mapper2 extends TableMapper<Text, Text> {
 
             private Table table;
+            private Connection conn;
 
             @Override
             protected void setup(Context context) throws IOException, InterruptedException {
                 Configuration hbaseConfig = HBaseConfiguration.create();
-                Connection conn = ConnectionFactory.createConnection(hbaseConfig);
+                 conn = ConnectionFactory.createConnection(hbaseConfig);
                 this.table = conn.getTable(TableName.valueOf("A:C"));
             }
             @Override
             protected void cleanup(Context context) throws IOException, InterruptedException {
                 table.close();
+                conn.close();
             }
             public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
                 String name = null;
