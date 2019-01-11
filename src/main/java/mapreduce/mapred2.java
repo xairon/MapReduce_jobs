@@ -16,7 +16,18 @@ public class mapred2 {
 
         static class Mapper2 extends TableMapper<Text, Text> {
 
+            private Table table;
 
+            @Override
+            protected void setup(Context context) throws IOException, InterruptedException {
+                Configuration hbaseConfig = HBaseConfiguration.create();
+                Connection conn = ConnectionFactory.createConnection(hbaseConfig);
+                this.table = conn.getTable(TableName.valueOf("A:C"));
+            }
+            @Override
+            protected void cleanup(Context context) throws IOException, InterruptedException {
+                table.close();
+            }
             public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
                 String name = null;
                 // get rowKey and convert it to string
@@ -29,32 +40,40 @@ public class mapred2 {
                 // string (as it is stored as string from hbase shell)
                 byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("G"));
                 String snotes = new String(bnotes);
-                Configuration c = HBaseConfiguration.create();
-                Connection connection = ConnectionFactory.createConnection(c);// Instantiate Configuration class
-                Table table = connection.getTable(TableName.valueOf("A:C"));
-                Get g = new Get(Bytes.toBytes(keymoyenne));
-                try{// Instantiate Get class
-                Result result = table.get(g);
-                    byte [] nom = result.getValue(Bytes.toBytes("#"),Bytes.toBytes("N"));
-                    name = Bytes.toString(nom);      // Print the values
+                Get getValue = new Get(keymoyenne.getBytes());
+
+                getValue.addColumn("#".getBytes(), "N".getBytes());
+
+                try {
+                    Result result = table.get(getValue);
+                    if (!table.exists(getValue)) {
+
+                        //requested key doesn't exist
+                        return;
+                    }
+
+                    byte[] nom = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("N"));
+                    name = Bytes.toString(nom);
+
                 }
-                finally
-                {
+                finally {
                     table.close();
-                    connection.close();
                 }
-                // Read the data
+
+
+                    // Read the data
 
                 // emit date and sales values
                 context.write(new Text(name+"/"+oKey2), new Text(snotes));
             }
+
         }
             public static void main(String[] args) throws Exception {
                 Configuration config = HBaseConfiguration.create();
                 Job job = Job.getInstance(config, "TestconfigMapper");
                 job.setJarByClass(mapred2.class);
                 Scan scan = new Scan();
-                scan.setCaching(500000);        // 1 is the default in Scan, which will be bad for MapReduce jobs
+                scan.setCaching(500);        // 1 is the default in Scan, which will be bad for MapReduce jobs
                 scan.setCacheBlocks(false);  // don't set to true for MR jobs
 // set other scan attrs
 
