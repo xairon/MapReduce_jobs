@@ -56,7 +56,7 @@ public class mapred2 {
                         scan,             // Scan instance to control CF and attribute selection
                         mapred2.Mapper2.class,   // mapper class
                         Text.class,             // mapper output key
-                        IntWritable.class,             // mapper output value
+                        Text.class,             // mapper output value
                         job);
                 TableMapReduceUtil.initTableReducerJob(
                         "21402752Q3",      // output table
