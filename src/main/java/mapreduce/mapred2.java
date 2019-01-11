@@ -72,7 +72,7 @@ public class mapred2 {
             }
 
         }
-    public static class Reducer2 extends TableReducer<ImmutableBytesWritable, IntWritable, ImmutableBytesWritable> {
+    public static class Reducer2 extends TableReducer<Text, IntWritable, Text> {
 
         public void reduce(ImmutableBytesWritable key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {

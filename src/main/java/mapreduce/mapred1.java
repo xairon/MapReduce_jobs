@@ -15,7 +15,6 @@ import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 
 
@@ -41,30 +40,30 @@ public class mapred1 {
 
     }
 
-    public static class Reducer1 extends TableReducer<ImmutableBytesWritable, IntWritable, Text> {
+    public static class Reducer1 extends TableReducer<ImmutableBytesWritable, IntWritable, ImmutableBytesWritable> {
 
         public void reduce(ImmutableBytesWritable key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
 
 
-                int sum = 0;
-                int compteur = 0;
-                // loop through different sales vales and add it to sum
-                for (IntWritable inputvalue : values) {
+            int sum = 0;
+            int compteur = 0;
+            // loop through different sales vales and add it to sum
+            for (IntWritable inputvalue : values) {
 
-                    sum += inputvalue.get();
-                    compteur++;
-                }
-                int moyenne = sum/compteur;
-                String smoyenne = String.valueOf(moyenne);
-                System.out.println(moyenne);
-                // create hbase put with rowkey as date
+                sum += inputvalue.get();
+                compteur++;
+            }
+            int moyenne = sum/compteur;
+            String smoyenne = String.valueOf(moyenne);
+            System.out.println(moyenne);
+            // create hbase put with rowkey as date
 
-                Put insHBase = new Put(key.get());
-                // insert sum value to hbase
-                insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(smoyenne));
-                // write data to Hbase table
-                context.write(null, insHBase);
+            Put insHBase = new Put(key.get());
+            // insert sum value to hbase
+            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(smoyenne));
+            // write data to Hbase table
+            context.write(null, insHBase);
 
         }
     }
