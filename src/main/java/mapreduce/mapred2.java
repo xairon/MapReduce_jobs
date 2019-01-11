@@ -2,16 +2,14 @@ package mapreduce;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 public class mapred2 {
 
@@ -20,7 +18,7 @@ public class mapred2 {
 
 
             public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
-
+                String name = null;
                 // get rowKey and convert it to string
                 String inKey = new String(row.get());
                 // set new key having only date
@@ -31,12 +29,21 @@ public class mapred2 {
                 // string (as it is stored as string from hbase shell)
                 byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("G"));
                 String snotes = new String(bnotes);
-                Configuration c = HBaseConfiguration.create();      // Instantiate Configuration class
-                HTable table = new HTable(c, "A:C"); // Instantiate HTable class
-                Get g = new Get(Bytes.toBytes(keymoyenne));        // Instantiate Get class
-                Result result = table.get(g);      // Read the data
-                byte [] nom = result.getValue(Bytes.toBytes("#"),Bytes.toBytes("N"));
-                String name = Bytes.toString(nom);      // Print the values
+                Configuration c = HBaseConfiguration.create();
+                Connection connection = ConnectionFactory.createConnection(c);// Instantiate Configuration class
+                Table table = connection.getTable(TableName.valueOf("A:C"));
+                Get g = new Get(Bytes.toBytes(keymoyenne));
+                try{// Instantiate Get class
+                Result result = table.get(g);
+                    byte [] nom = result.getValue(Bytes.toBytes("#"),Bytes.toBytes("N"));
+                    name = Bytes.toString(nom);      // Print the values
+                }
+                finally
+                {
+                    table.close();
+                    connection.close();
+                }
+                // Read the data
 
                 // emit date and sales values
                 context.write(new Text(name+"/"+oKey2), new Text(snotes));
