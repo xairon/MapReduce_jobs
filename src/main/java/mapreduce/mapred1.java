@@ -55,12 +55,13 @@ public class mapred1 {
                     compteur++;
                 }
                 int moyenne = sum/compteur;
+                String smoyenne = String.valueOf(moyenne);
                 System.out.println(moyenne);
                 // create hbase put with rowkey as date
 
                 Put insHBase = new Put(key.get());
                 // insert sum value to hbase
-                insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(moyenne));
+                insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(smoyenne));
                 // write data to Hbase table
                 context.write(null, insHBase);
 
