@@ -54,12 +54,12 @@ public class mapred1 {
                     sum += intmoyenne;
                     compteur++;
                 }
-
+                int moyenne = sum/compteur;
                 // create hbase put with rowkey as date
 
                 Put insHBase = new Put(key.get());
                 // insert sum value to hbase
-                insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(sum/compteur));
+                insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(moyenne));
                 // write data to Hbase table
                 context.write(null, insHBase);
 
