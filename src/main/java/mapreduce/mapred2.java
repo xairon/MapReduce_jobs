@@ -5,6 +5,7 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
+import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -71,6 +72,33 @@ public class mapred2 {
             }
 
         }
+    public static class Reducer2 extends TableReducer<ImmutableBytesWritable, IntWritable, ImmutableBytesWritable> {
+
+        public void reduce(ImmutableBytesWritable key, Iterable<IntWritable> values, Context context)
+                throws IOException, InterruptedException {
+
+
+            int sum = 0;
+            int compteur = 0;
+            // loop through different sales vales and add it to sum
+            for (IntWritable inputvalue : values) {
+
+                sum += inputvalue.get();
+                compteur++;
+            }
+            int moyenne = sum/compteur;
+            String smoyenne = String.valueOf(moyenne);
+            System.out.println(moyenne);
+            // create hbase put with rowkey as date
+
+            Put insHBase = new Put(key.get());
+            // insert sum value to hbase
+            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(smoyenne));
+            // write data to Hbase table
+            context.write(null, insHBase);
+
+        }
+    }
             public static void main(String[] args) throws Exception {
                 Configuration config = HBaseConfiguration.create();
                 Job job = Job.getInstance(config, "TestconfigMapper");
@@ -89,7 +117,7 @@ public class mapred2 {
                         job);
                 TableMapReduceUtil.initTableReducerJob(
                         "21402752Q3",      // output table
-                        mapred1.Reducer1.class,  // reducer class
+                        mapred2.Reducer2.class,  // reducer class
                         job);
                 //job.setMapOutputKeyClass(ImmutableBytesWritable.class);
                 //job.setMapOutputValueClass(Put.class);
