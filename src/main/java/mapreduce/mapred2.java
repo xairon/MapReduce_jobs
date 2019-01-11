@@ -28,6 +28,7 @@ public class mapred2 {
             @Override
             protected void cleanup(Context context) throws IOException, InterruptedException {
                 table.close();
+
                 conn.close();
             }
             public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
