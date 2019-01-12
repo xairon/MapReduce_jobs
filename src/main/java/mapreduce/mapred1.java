@@ -51,8 +51,9 @@ public class mapred1 {
             // loop through different sales vales and add it to sum
             for (IntWritable inputvalue : values) {
 
-                 if(inputvalue.get()/100>=10)
-                    sum+=inputvalue.get();
+                float a = inputvalue.get()/100;
+                if(a>=10)
+                    sum+=a;
                 compteur++;
             }
             float moyenne = (sum/compteur);
