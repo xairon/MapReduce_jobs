@@ -50,15 +50,14 @@ public class mapred1 {
             int compteur = 0;
             // loop through different sales vales and add it to sum
             for (IntWritable inputvalue : values) {
-
-                float a = inputvalue.get()/100;
+                double a = Double.valueOf(inputvalue.get())/100.0;
                 if(a>=10)
-                    sum++;
+                {sum++;}
                 compteur++;
             }
-            float moyenne = (sum/compteur);
+            double moyenne = ((double)sum/(double)compteur);
             String smoyenne = String.valueOf(moyenne);
-            System.out.println(moyenne);
+            System.out.println(smoyenne);
             // create hbase put with rowkey as date
 
             Put insHBase = new Put(key.get());
@@ -66,6 +65,7 @@ public class mapred1 {
             insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(smoyenne));
             // write data to Hbase table
             context.write(null, insHBase);
+
 
         }
     }
