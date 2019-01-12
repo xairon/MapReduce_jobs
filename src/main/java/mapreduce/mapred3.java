@@ -59,7 +59,7 @@ public class mapred3 {
 
                 byte[] nom = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("N"));
                 name = Bytes.toString(nom);
-                key = name+"/"+oKey2+"/"+inKey;
+                key = name+"/"+oKey2+"/"+oKey;
 
             }
             finally {
