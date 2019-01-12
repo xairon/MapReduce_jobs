@@ -79,19 +79,19 @@ public class mapred2 {
         public void reduce(ImmutableBytesWritable key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
 
-
+            float a=0;
             int sum = 0;
             int compteur = 0;
             // loop through different sales vales and add it to sum
             for (IntWritable inputvalue : values) {
-                float a = Integer.valueOf(inputvalue.get())/100;
+                a = Integer.valueOf(inputvalue.get())/100;
                 if(a>=10)
-                    sum++;
+                {sum++;}
                 compteur++;
             }
             float moyenne = (sum/compteur);
             String smoyenne = String.valueOf(moyenne);
-            System.out.println(moyenne);
+            System.out.println(a);
             // create hbase put with rowkey as date
 
             Put insHBase = new Put(key.get());
