@@ -54,7 +54,7 @@ public class mapred1 {
                 sum += inputvalue.get();
                 compteur++;
             }
-            int moyenne = sum/compteur;
+            float moyenne = (sum/compteur)/100;
             String smoyenne = String.valueOf(moyenne);
             System.out.println(moyenne);
             // create hbase put with rowkey as date
