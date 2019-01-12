@@ -80,16 +80,16 @@ public class mapred2 {
                 throws IOException, InterruptedException {
 
 
-            float sum = 0;
-            float compteur = 0;
+            int sum = 0;
+            int compteur = 0;
             // loop through different sales vales and add it to sum
             for (IntWritable inputvalue : values) {
-                float a = Integer.valueOf(inputvalue.get())/100;
+                double a = Double.valueOf(inputvalue.get())/100.0;
                 if(a>=10)
                 {sum++;}
                 compteur++;
             }
-            float moyenne = (sum/compteur);
+            double moyenne = ((double)sum/(double)compteur);
             String smoyenne = String.valueOf(moyenne);
             System.out.println(smoyenne);
             // create hbase put with rowkey as date
