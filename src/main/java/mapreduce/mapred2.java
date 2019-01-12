@@ -79,13 +79,13 @@ public class mapred2 {
         public void reduce(ImmutableBytesWritable key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
 
-            float a=0;
+            int a=0;
             int sum = 0;
             int compteur = 0;
             // loop through different sales vales and add it to sum
             for (IntWritable inputvalue : values) {
                 a = Integer.valueOf(inputvalue.get())/100;
-                if(a>=10)
+                if(a>9)
                 {sum++;}
                 compteur++;
             }
