@@ -91,7 +91,7 @@ public class mapred2 {
             }
             float moyenne = (sum/compteur);
             String smoyenne = String.valueOf(moyenne);
-            System.out.println(a);
+            System.out.println(smoyenne);
             // create hbase put with rowkey as date
 
             Put insHBase = new Put(key.get());
