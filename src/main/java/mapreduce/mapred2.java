@@ -85,10 +85,11 @@ public class mapred2 {
             // loop through different sales vales and add it to sum
             for (IntWritable inputvalue : values) {
 
-                sum += inputvalue.get();
+                if(inputvalue.get()/100>=10)
+                    sum+=inputvalue.get();
                 compteur++;
             }
-            float moyenne = (sum/compteur)/100;
+            float moyenne = (sum/compteur);
             String smoyenne = String.valueOf(moyenne);
             System.out.println(moyenne);
             // create hbase put with rowkey as date
