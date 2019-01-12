@@ -84,7 +84,7 @@ public class mapred2 {
             int compteur = 0;
             // loop through different sales vales and add it to sum
             for (IntWritable inputvalue : values) {
-                float a = inputvalue.get()/100;
+                float a = Integer.valueOf(inputvalue.get())/100;
                 if(a>=10)
                     sum++;
                 compteur++;
