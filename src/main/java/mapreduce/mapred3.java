@@ -87,7 +87,7 @@ public class mapred3 {
 
                 float a = inputvalue.get()/100;
                 if(a>=10)
-                    sum+=a;
+                    sum++;
                 compteur++;
             }
             float moyenne = (sum/compteur);
