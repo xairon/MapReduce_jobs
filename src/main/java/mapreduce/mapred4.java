@@ -14,8 +14,8 @@ import org.apache.hadoop.mapreduce.Job;
 
 import java.io.IOException;
 
-public class mapred3 {
-    static class Mapper3 extends TableMapper<ImmutableBytesWritable, IntWritable> {
+public class mapred4 {
+    static class Mapper4 extends TableMapper<ImmutableBytesWritable, IntWritable> {
 
         private Table table;
         private Connection conn;
@@ -74,7 +74,7 @@ public class mapred3 {
         }
 
     }
-    public static class Reducer3 extends TableReducer<ImmutableBytesWritable, IntWritable, ImmutableBytesWritable> {
+    public static class Reducer4 extends TableReducer<ImmutableBytesWritable, IntWritable, ImmutableBytesWritable> {
 
         public void reduce(ImmutableBytesWritable key, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
@@ -104,7 +104,7 @@ public class mapred3 {
     public static void main(String[] args) throws Exception {
         Configuration config = HBaseConfiguration.create();
         Job job = Job.getInstance(config, "TestconfigMapper");
-        job.setJarByClass(mapred3.class);
+        job.setJarByClass(mapred4.class);
         Scan scan = new Scan();
         scan.setCaching(500);        // 1 is the default in Scan, which will be bad for MapReduce jobs
         scan.setCacheBlocks(false);  // don't set to true for MR jobs
@@ -113,13 +113,13 @@ public class mapred3 {
         TableMapReduceUtil.initTableMapperJob(
                 "A:G",      // input table
                 scan,             // Scan instance to control CF and attribute selection
-                mapred3.Mapper3.class,   // mapper class
+                mapred4.Mapper4.class,   // mapper class
                 ImmutableBytesWritable.class,             // mapper output key
                 IntWritable.class,
                 job);
         TableMapReduceUtil.initTableReducerJob(
-                "21402752Q4",      // output table
-                mapred3.Reducer3.class,  // reducer class
+                "21402752Q5",      // output table
+                mapred4.Reducer4.class,  // reducer class
                 job);
         //job.setMapOutputKeyClass(ImmutableBytesWritable.class);
         //job.setMapOutputValueClass(Put.class);
