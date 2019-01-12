@@ -77,7 +77,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>mapreduce.mapred2</mainClass>
+                            <mainClass>mapreduce.mapred3</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
