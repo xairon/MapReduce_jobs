@@ -118,7 +118,7 @@ public class CreateTempTable {
 
         HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf("21402752_Temp"));
         System.out.println("Adding column family...");
-        hTableDescriptor.addFamily(HColumnDescriptor.parseFrom("A".getBytes()));
+        hTableDescriptor.addFamily(new HColumnDescriptor("#".getBytes()));
         System.out.println("creating table from table descriptor...");
         connection.getAdmin().createTable(hTableDescriptor);
         System.out.println("finished creating temp table");
