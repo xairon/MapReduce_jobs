@@ -35,7 +35,7 @@ public class CreateTempTable {
             conn.close();
         }
         public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
-            String name;
+
             // get rowKey and convert it to string
             String inKey = new String(row.get());
 
@@ -49,6 +49,7 @@ public class CreateTempTable {
 
             String courseKey = ue+"/"+yearInvert;
 
+            System.out.println("courseKey: "+courseKey);
 
             Result result;
             try {
@@ -71,11 +72,15 @@ public class CreateTempTable {
                 byte[] bytes = result.getValue("#".getBytes(), "N".getBytes());
                 String ueName = new String(bytes);
 
+                System.out.println("ueName: "+ueName);
 
                 String strValue = new String(value.value());
                 int grade = Integer.valueOf(strValue);
 
                 String key = year+"/"+sem+"/"+etu;
+
+                System.out.println("newKey: "+key+"\n");
+
                 context.write(
                         new ImmutableBytesWritable(key.getBytes()),
                         new Text(ue+"/"+ueName+"/"+grade));
