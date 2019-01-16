@@ -1,10 +1,7 @@
 package mapreduce;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
@@ -64,7 +61,7 @@ public class CreateTempTable {
                 result = resultScanner.next();
 
 
-                if (!result.getExists()) {
+                if (result == null || !result.getExists()) {
                     System.out.println("key doesn't exists (CreateTempTable): " + courseKey);
                     //requested key doesn't exist
                     return;
@@ -85,7 +82,7 @@ public class CreateTempTable {
 
 
             }
-            catch (Exception e){
+            catch (HBaseIOException e){
                 e.printStackTrace();
                 System.err.println("An error occured in CreateTempTable Mapper");
             }
