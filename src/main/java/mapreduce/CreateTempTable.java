@@ -12,12 +12,14 @@ import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.join.TupleWritable;
 import org.apache.hadoop.mapreduce.Job;
 
 import java.io.IOException;
 
 public class CreateTempTable {
-    static class MapperTemp extends TableMapper<ImmutableBytesWritable, IntWritable> {
+    static class MapperTemp extends TableMapper<ImmutableBytesWritable, Text> {
 
         private Table table;
         private Connection conn;
@@ -36,77 +38,74 @@ public class CreateTempTable {
             conn.close();
         }
         public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
-            String name = null;
+            String name;
             // get rowKey and convert it to string
             String inKey = new String(row.get());
-            // set new key having only date
-            String oKey = inKey.split("/")[0];
-            String oKey2 = inKey.split("/")[2];
-            String keymoyenne = oKey2+"/"+Integer.toString(9999-Integer.valueOf(oKey));
-            // get sales column in byte format first and then convert it to
-            // string (as it is stored as string from hbase shell)
-            byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("G"));
-            String snotes = new String(bnotes);
+
+            String[] splitted = inKey.split("/");
+            String year = splitted[0];
+            String yearInvert = String.valueOf(9999-Integer.valueOf(year));
+
+            String sem = splitted[1].substring(0,2);
+            String etu = splitted[1].substring(2,12);
+            String ue = splitted[2];
+
+            String courseKey = ue+"/"+yearInvert;
 
 
+            Result result;
             try {
                 Scan firstUEScanner = new Scan();
-                firstUEScanner.withStartRow(keymoyenne.getBytes());
+                firstUEScanner.withStartRow(courseKey.getBytes());
                 firstUEScanner.setMaxResultSize(1);
                 firstUEScanner.setCacheBlocks(false);
 
                 ResultScanner resultScanner = table.getScanner(firstUEScanner);
-                Result result = resultScanner.next();
+                result = resultScanner.next();
 
 
-                if (result == null) {
-                    System.out.println("key doesn't exists (Exo3): "+keymoyenne);
+                if (!result.getExists()) {
+                    System.out.println("key doesn't exists (CreateTempTable): " + courseKey);
                     //requested key doesn't exist
                     return;
                 }
 
-                byte[] nom = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("N"));
-                name = Bytes.toString(nom);
-                key = name+"/"+oKey2+"/"+oKey;
+
+                byte[] bytes = result.getValue("#".getBytes(), "N".getBytes());
+                String ueName = new String(bytes);
+
+
+                String strValue = new String(value.value());
+                int grade = Integer.valueOf(strValue);
+
+                String key = year+"/"+sem+"/"+etu;
+                context.write(
+                        new ImmutableBytesWritable(key.getBytes()),
+                        new Text(ue+"/"+ueName+"/"+grade));
+
 
             }
-            catch (Exception e) {
+            catch (Exception e){
                 e.printStackTrace();
-                System.out.println("Erreur Exo3");
+                System.err.println("An error occured in CreateTempTable Mapper");
             }
-
-
-            // Read the data
-
-            // emit date and sales values
-            context.write(new ImmutableBytesWritable(key.getBytes()), new IntWritable(Integer.valueOf(snotes)));
         }
 
     }
-    public static class ReducerTemp extends TableReducer<ImmutableBytesWritable, IntWritable, ImmutableBytesWritable> {
+    public static class ReducerTemp extends TableReducer<ImmutableBytesWritable, Pair<String,Integer>, ImmutableBytesWritable> {
 
-        public void reduce(ImmutableBytesWritable key, Iterable<IntWritable> values, Context context)
+        public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
 
+            Put put = new Put(key.get());
+            for (Text inputvalue : values) {
+                String[] splitted = (new String(inputvalue.getBytes())).split("/");
+                String columnName = splitted[0]+"/"+splitted[1];
+                put.addColumn("#".getBytes(), columnName.getBytes(), splitted[2].getBytes());
 
-            int sum = 0;
-            int compteur = 0;
-            // loop through different sales vales and add it to sum
-            for (IntWritable inputvalue : values) {
-
-                sum += inputvalue.get();
-                compteur++;
             }
-            double moyenne = ((double)sum/(double)compteur)/100.0;
-            String smoyenne = String.valueOf(moyenne);
-            System.out.println(moyenne);
-            // create hbase put with rowkey as date
 
-            Put insHBase = new Put(key.get());
-            // insert sum value to hbase
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(smoyenne));
-            // write data to Hbase table
-            context.write(null, insHBase);
+            context.write(null, put);
 
         }
     }
@@ -128,7 +127,32 @@ public class CreateTempTable {
             System.out.println("finished creating temp table");
         }
 
+        Job job = Job.getInstance(config, "TestconfigMapper");
+        job.setJarByClass(MapperTemp.class);
+        Scan scan = new Scan();
+        scan.setCaching(500);        // 1 is the default in Scan, which will be bad for MapReduce jobs
+        scan.setCacheBlocks(false);  // don't set to true for MR jobs
+// set other scan attrs
 
+        TableMapReduceUtil.initTableMapperJob(
+                "A:G",      // input table
+                scan,             // Scan instance to control CF and attribute selection
+                CreateTempTable.MapperTemp.class,   // mapper class
+                ImmutableBytesWritable.class,             // mapper output key
+                IntWritable.class,
+                job);
+        TableMapReduceUtil.initTableReducerJob(
+                "21402752_Temp",      // output table
+                CreateTempTable.ReducerTemp.class,  // reducer class
+                job);
+        //job.setMapOutputKeyClass(ImmutableBytesWritable.class);
+        //job.setMapOutputValueClass(Put.class);
+
+
+        boolean b = job.waitForCompletion(true);
+        if (!b) {
+            throw new IOException("error with job!");
+        }
 
 
     }
