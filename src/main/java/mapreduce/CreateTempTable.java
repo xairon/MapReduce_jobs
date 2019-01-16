@@ -61,10 +61,11 @@ public class CreateTempTable {
                 ResultScanner resultScanner = table.getScanner(firstUEScanner);
                 result = resultScanner.next();
 
-
                 System.out.println("got result, checking existence");
 
-                if (result == null || !result.getExists()) {
+                System.out.println(result);
+
+                if ((result == null) || (!result.getExists())) {
                     System.out.println("key doesn't exists (CreateTempTable): " + courseKey);
                     //requested key doesn't exist
                     return;
