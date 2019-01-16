@@ -4,10 +4,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
+import org.apache.hadoop.hbase.protobuf.generated.ClientProtos;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Job;
@@ -45,14 +48,20 @@ public class mapred3 {
             // string (as it is stored as string from hbase shell)
             byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("G"));
             String snotes = new String(bnotes);
-            Get getValue = new Get(keymoyenne.getBytes());
 
-            getValue.addColumn("#".getBytes(), "N".getBytes());
 
             try {
-                Result result = table.get(getValue);
-                if (!table.exists(getValue)) {
+                Scan firstUEScanner = new Scan();
+                firstUEScanner.withStartRow(keymoyenne.getBytes());
+                firstUEScanner.setMaxResultSize(1);
+                firstUEScanner.setCacheBlocks(false);
 
+                ResultScanner resultScanner = table.getScanner(firstUEScanner);
+                Result result = resultScanner.next();
+
+
+                if (result == null) {
+                    System.out.println("key doesn't exists (Exo3): "+keymoyenne);
                     //requested key doesn't exist
                     return;
                 }
@@ -62,8 +71,9 @@ public class mapred3 {
                 key = name+"/"+oKey2+"/"+oKey;
 
             }
-            finally {
-
+            catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Erreur Exo3");
             }
 
 
