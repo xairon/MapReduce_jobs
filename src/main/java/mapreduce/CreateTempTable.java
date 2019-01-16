@@ -62,12 +62,15 @@ public class CreateTempTable {
                 result = resultScanner.next();
 
 
+                System.out.println("got result, checking existence");
+
                 if (result == null || !result.getExists()) {
                     System.out.println("key doesn't exists (CreateTempTable): " + courseKey);
                     //requested key doesn't exist
                     return;
                 }
 
+                System.out.println("getting ueName bytes");
 
                 byte[] bytes = result.getValue("#".getBytes(), "N".getBytes());
                 String ueName = new String(bytes);
