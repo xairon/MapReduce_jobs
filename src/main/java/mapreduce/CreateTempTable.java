@@ -114,10 +114,12 @@ public class CreateTempTable {
         Configuration config = HBaseConfiguration.create();
 
         Connection connection = ConnectionFactory.createConnection(config);
-        System.out.println("creating temp table");
-        HTableDescriptor hTableDescriptor = HTableDescriptor.parseFrom("21402752_Temp".getBytes());
-        hTableDescriptor.addFamily(HColumnDescriptor.parseFrom("A".getBytes()));
+        System.out.println("creating temp table descriptor...");
 
+        HTableDescriptor hTableDescriptor = new HTableDescriptor(TableName.valueOf("21402752_Temp"));
+        System.out.println("Adding column family...");
+        hTableDescriptor.addFamily(HColumnDescriptor.parseFrom("A".getBytes()));
+        System.out.println("creating table from table descriptor...");
         connection.getAdmin().createTable(hTableDescriptor);
         System.out.println("finished creating temp table");
 
