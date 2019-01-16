@@ -2,6 +2,7 @@ package mapreduce;
 
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
@@ -20,48 +21,72 @@ import org.apache.hadoop.mapreduce.Job;
 
 public class mapred1 {
 
-    static class Mapper1 extends TableMapper<ImmutableBytesWritable, IntWritable> {
+    public static class UEGrade {
+        public final String UE;
+        public final int grade;
+
+        public UEGrade(String UE, int grade) {
+            this.UE = UE;
+            this.grade = grade;
+        }
+    }
+
+    static class Mapper1 extends TableMapper<ImmutableBytesWritable, UEGrade> {
         private static final IntWritable one = new IntWritable(1);
 
         public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
             // get rowKey and convert it to string
             String inKey = new String(row.get());
             // set new key having only date
-            String oKey = inKey.split("/")[0];
-            // get sales column in byte format first and then convert it to
-            // string (as it is stored as string from hbase shell)
+            String[] splitted = inKey.split("/");
+
+            String year = splitted[0];
+
+            String semester = splitted[1].substring(0,2);
+            String student = splitted[1].substring(2,12);
+
             byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("G"));
             String snotes = new String(bnotes);
-            Integer notes = new Integer(snotes);
-            // emit date and sales values
-            context.write(new ImmutableBytesWritable(oKey.getBytes()), new IntWritable(notes));
+
+            String yearSemEtu = year+"/"+semester+"/"+student;
+
+            context.write(new ImmutableBytesWritable(yearSemEtu.getBytes()),
+                    new UEGrade(splitted[2], Integer.valueOf(snotes)));
         }
 
 
     }
 
-    public static class Reducer1 extends TableReducer<ImmutableBytesWritable, IntWritable, ImmutableBytesWritable> {
+    public static class Reducer1 extends TableReducer<ImmutableBytesWritable, UEGrade, ImmutableBytesWritable> {
 
-        public void reduce(ImmutableBytesWritable key, Iterable<IntWritable> values, Context context)
+        public void reduce(ImmutableBytesWritable key, Iterable<UEGrade> values, Context context)
                 throws IOException, InterruptedException {
-
 
             int sum = 0;
             int compteur = 0;
-            // loop through different sales vales and add it to sum
-            for (IntWritable inputvalue : values) {
-                double a = Double.valueOf(inputvalue.get())/100.0;
-                if(a>=10)
-                {sum++;}
+
+            HashMap<String,Integer> ueGradeMap = new HashMap<>();
+            HashMap<String,Integer> ueGradeCount = new HashMap<>();
+
+            for (UEGrade ueGrade: values){
+                sum += ueGrade.grade;
                 compteur++;
+
+                ueGradeMap.putIfAbsent(ueGrade.UE, 0);
+                ueGradeMap.compute(ueGrade.UE,(k,v) -> v + ueGrade.grade);
+
+                ueGradeCount.putIfAbsent(ueGrade.UE, 0);
+                ueGradeCount.compute(ueGrade.UE, (k,v) -> v+1);
             }
+
+
             double moyenne = ((double)sum/(double)compteur);
             String smoyenne = String.valueOf(moyenne);
             System.out.println(smoyenne);
-            // create hbase put with rowkey as date
+
 
             Put insHBase = new Put(key.get());
-            // insert sum value to hbase
+
             insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(smoyenne));
             // write data to Hbase table
             context.write(null, insHBase);
