@@ -116,7 +116,7 @@ public class CreateTempTable {
         Connection connection = ConnectionFactory.createConnection(config);
         System.out.println("creating temp table");
         HTableDescriptor hTableDescriptor = HTableDescriptor.parseFrom("21402752_Temp".getBytes());
-        hTableDescriptor.addFamily(HColumnDescriptor.parseFrom("#".getBytes()));
+        hTableDescriptor.addFamily(HColumnDescriptor.parseFrom("A".getBytes()));
 
         connection.getAdmin().createTable(hTableDescriptor);
         System.out.println("finished creating temp table");
