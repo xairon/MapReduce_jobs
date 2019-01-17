@@ -142,8 +142,8 @@ public class CreateTempTable {
                 "A:G",      // input table
                 scan,             // Scan instance to control CF and attribute selection
                 CreateTempTable.MapperTemp.class,   // mapper class
-                ImmutableBytesWritable.class,             // mapper output key
-                IntWritable.class,
+                ImmutableBytesWritable.class,       // mapper output key
+                Text.class,                         // mapper output value
                 job);
         TableMapReduceUtil.initTableReducerJob(
                 "21402752_Temp",      // output table
