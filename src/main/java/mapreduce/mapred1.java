@@ -75,7 +75,7 @@ public class mapred1 {
                     if (grades.stream().mapToDouble(Double::doubleValue).sum()/grades.size() >= 10d)
                         passed.increment();
                 });
-                double taux = ((double)passed.get())/((double)passed.get());
+                double taux = ((double)passed.get())/((double)all.get());
                 String clef = semester + "/" + year;
                 Put insHBase = new Put(clef.getBytes());
                 insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("S"), Bytes.toBytes(String.valueOf(taux)));
