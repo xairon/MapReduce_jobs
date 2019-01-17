@@ -104,6 +104,11 @@ public class mapred2 {
     }
             public static void main(String[] args) throws Exception {
                 Configuration config = HBaseConfiguration.create();
+
+                Connection connection = ConnectionFactory.createConnection(config);
+
+                TableUtil.createTableIfNotExists(connection, "21402752Q3", "#");
+
                 Job job = Job.getInstance(config, "TestconfigMapper");
                 job.setJarByClass(mapred2.class);
                 Scan scan = new Scan();
