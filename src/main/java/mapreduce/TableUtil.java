@@ -17,7 +17,7 @@ public class TableUtil {
      * @return true if table was dropped
      * @throws IOException
      */
-    public static boolean createTableIfNotExists(Connection connection, String name, String[] columnFamilies) throws IOException {
+    public static boolean createTableIfNotExists(Connection connection, String name, String... columnFamilies) throws IOException {
         TableName tableName = TableName.valueOf(name);
 
         if (!connection.getAdmin().tableExists(tableName)){
