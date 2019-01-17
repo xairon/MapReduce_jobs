@@ -49,7 +49,7 @@ public class mapred1 {
 
     }
 
-    public static class Reducer1 extends TableReducer<ImmutableBytesWritable, IntWritable, ImmutableBytesWritable> {
+    public static class Reducer1 extends TableReducer<ImmutableBytesWritable, ImmutableBytesWritable, ImmutableBytesWritable> {
 
         public void reduce(ImmutableBytesWritable key, Iterable<ImmutableBytesWritable> values, Context context){
 
@@ -100,7 +100,7 @@ public class mapred1 {
                 scan,             // Scan instance to control CF and attribute selection
                 mapred1.Mapper1.class,   // mapper class
                 ImmutableBytesWritable.class,             // mapper output key
-                IntWritable.class,             // mapper output value
+                ImmutableBytesWritable.class,             // mapper output value
                 job);
         TableMapReduceUtil.initTableReducerJob(
                 "21402752Q2",      // output table
