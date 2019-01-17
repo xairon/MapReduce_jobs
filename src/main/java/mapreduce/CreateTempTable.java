@@ -63,9 +63,7 @@ public class CreateTempTable {
 
                 System.out.println("got result, checking existence");
 
-                System.out.println(result);
-
-                if ((result == null) || (!result.getExists())) {
+                if ((result == null)) {
                     System.out.println("key doesn't exists (CreateTempTable): " + courseKey);
                     //requested key doesn't exist
                     return;
