@@ -73,9 +73,12 @@ public class CreateTempTable {
 
                 String key = year+"/"+sem+"/"+etu;
 
+                String outvalue = ue+"/"+ueName+"/"+grade;
+                System.out.println("outvalue: "+outvalue);
+
                 context.write(
                         new ImmutableBytesWritable(key.getBytes()),
-                        new Text(ue+"/"+ueName+"/"+grade));
+                        new Text(outvalue));
 
 
             }
@@ -93,6 +96,7 @@ public class CreateTempTable {
 
             Put put = new Put(key.get());
             for (Text inputvalue : values) {
+
                 String[] splitted = (new String(inputvalue.getBytes())).split("/");
                 String columnName = splitted[0]+"/"+splitted[1];
                 System.out.println("splitted[2]: "+splitted[2]);
