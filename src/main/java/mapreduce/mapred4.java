@@ -71,7 +71,7 @@ public class mapred4 {
 
                 context.write(
                         new ImmutableBytesWritable(outKey.getBytes()),
-                        new Text(outKey));
+                        new Text(outValue));
 
             }
 
@@ -97,16 +97,7 @@ public class mapred4 {
                 String ue = splittedValue[0];
                 String ueName = splittedValue[1];
 
-                double grade_ = 0;
-
-                try {
-                    grade_ = Double.valueOf(splittedValue[2]);
-                }
-                catch (ArrayIndexOutOfBoundsException e) {
-                    System.err.println("Error with key "+ Arrays.toString(splittedValue));
-                }
-
-                double grade = grade_;
+                double grade = Double.valueOf(splittedValue[2]); // Out of bound here
 
                 String ueComp = ue+"/"+ueName;
 
