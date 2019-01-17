@@ -83,7 +83,7 @@ public class CreateTempTable {
             }
             catch (HBaseIOException e){
                 e.printStackTrace();
-                System.err.println("An error occured in CreateTempTable Mapper");
+                System.err.println("An error occurred in CreateTempTable Mapper");
             }
         }
 
@@ -97,8 +97,8 @@ public class CreateTempTable {
             for (Text inputvalue : values) {
                 String[] splitted = (new String(inputvalue.getBytes())).split("/");
                 String columnName = splitted[0]+"/"+splitted[1];
+                System.out.println("splitted[2]: "+splitted[2]);
                 put.addColumn("#".getBytes(), columnName.getBytes(), splitted[2].getBytes());
-
             }
 
             context.write(null, put);
