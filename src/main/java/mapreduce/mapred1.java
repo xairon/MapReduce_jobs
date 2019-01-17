@@ -78,7 +78,7 @@ public class mapred1 {
                 double taux = ((double)passed.get())/((double)passed.get());
                 String clef = semester + "/" + year;
                 Put insHBase = new Put(clef.getBytes());
-                insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("S"), Bytes.toBytes(taux));
+                insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("S"), Bytes.toBytes(String.valueOf(taux)));
                 try {
                     context.write(null, insHBase);
                 }catch (InterruptedException | IOException ignored){}
