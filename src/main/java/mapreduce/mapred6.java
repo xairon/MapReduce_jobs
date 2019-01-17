@@ -2,6 +2,7 @@ package mapreduce;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.HBaseIOException;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -10,22 +11,25 @@ import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 
 import java.io.IOException;
+import java.util.*;
+
 
 public class mapred6 {
-    static class Mapper6 extends TableMapper<ImmutableBytesWritable, IntWritable> {
+    static class Mapper6 extends TableMapper<ImmutableBytesWritable, Text> {
 
         private Table table;
         private Connection conn;
-        private String key = null;
+
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
             Configuration hbaseConfig = HBaseConfiguration.create();
             conn = ConnectionFactory.createConnection(hbaseConfig);
-            this.table = conn.getTable(TableName.valueOf("A:C"));
+            this.table = conn.getTable(TableName.valueOf("A:S"));
         }
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
@@ -34,69 +38,102 @@ public class mapred6 {
             conn.close();
         }
         public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
-            String name = null;
+
             // get rowKey and convert it to string
             String inKey = new String(row.get());
-            // set new key having only date
-            String oKey = inKey.split("/")[0];
-            String oKey2 = inKey.split("/")[2];
-            String keymoyenne = oKey2+"/"+Integer.toString(9999-Integer.valueOf(oKey));
-            // get sales column in byte format first and then convert it to
-            // string (as it is stored as string from hbase shell)
-            byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("G"));
-            String snotes = new String(bnotes);
-            Get getValue = new Get(keymoyenne.getBytes());
 
-            getValue.addColumn("#".getBytes(), "N".getBytes());
+            String[] splitted = inKey.split("/");
+            String year = splitted[0];
+            String etu = splitted[1].substring(2,12);
 
+            Result result;
             try {
-                Result result = table.get(getValue);
-                if (!table.exists(getValue)) {
+                Scan firstUEScanner = new Scan();
+                firstUEScanner.withStartRow(etu.getBytes());
+                firstUEScanner.setMaxResultSize(1);
+                firstUEScanner.setCacheBlocks(false);
 
+                ResultScanner resultScanner = table.getScanner(firstUEScanner);
+                result = resultScanner.next();
+
+                if ((result == null)) {
+                    System.out.println("key doesn't exists (mapred6): " + etu);
                     //requested key doesn't exist
                     return;
                 }
 
-                byte[] nom = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("N"));
-                name = Bytes.toString(nom);
-                key = name+"/"+oKey2+"/"+oKey;
+                byte[] bytes = result.getValue("#".getBytes(), "P".getBytes());
+                String program = new String(bytes);
+
+                String strValue = new String(value.value());
+                int grade = Integer.valueOf(strValue);
+
+                String key = program+"/"+year;
+
+                String outvalue = etu+"/"+grade;
+
+                context.write(
+                        new ImmutableBytesWritable(key.getBytes()),
+                        new Text(outvalue));
+
 
             }
-            finally {
-
+            catch (HBaseIOException e){
+                e.printStackTrace();
+                System.err.println("An error occurred in mapred6 Mapper");
             }
-
-
-            // Read the data
-
-            // emit date and sales values
-            context.write(new ImmutableBytesWritable(key.getBytes()), new IntWritable(Integer.valueOf(snotes)));
         }
 
     }
-    public static class Reducer6 extends TableReducer<ImmutableBytesWritable, IntWritable, ImmutableBytesWritable> {
 
-        public void reduce(ImmutableBytesWritable key, Iterable<IntWritable> values, Context context)
+    public static class Reducer6 extends TableReducer<ImmutableBytesWritable, Text, ImmutableBytesWritable> {
+
+        public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
+            ArrayList <Pair<String, Double>>list = null;
+            HashMap<String,Integer> sum= new HashMap<>();
+            HashMap<String,Double>listnote = new HashMap<>();
+
+            Pair <String,Double> pair = null;
 
 
-            int sum = 0;
-            int compteur = 0;
-            // loop through different sales vales and add it to sum
-            for (IntWritable inputvalue : values) {
 
-                sum += inputvalue.get();
-                compteur++;
+
+            for (Text value : values){
+                String[] decode = value.toString().split("/");
+                final String student = decode[0];
+                double grade = Double.parseDouble(decode[1])/100.0;
+                listnote.putIfAbsent(student, 0.0);
+                sum.putIfAbsent(student, 0);
+                listnote.compute(student, (k,v) -> v+grade );
+                sum.compute(student, (k,v) -> v+1 );
+
             }
-            double moyenne = ((double)sum/(double)compteur)/100.0;
-            String smoyenne = String.valueOf(moyenne);
-            System.out.println(moyenne);
-            // create hbase put with rowkey as date
-
             Put insHBase = new Put(key.get());
-            // insert sum value to hbase
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(smoyenne));
-            // write data to Hbase table
+            for (Map.Entry<String,Double> entry : listnote.entrySet()) {
+                double avgGrade = entry.getValue()/((double) sum.get(entry.getKey()));
+                 String y =entry.getKey();
+
+                list.add(new Pair<>(entry.getKey(), avgGrade));
+            }
+
+
+            list.sort((x,y) -> {
+              if (x.b<y.b) {
+                  return 1;
+              }
+              else if (x.b>y.b){
+                  return -1;
+              }
+              return 0;
+          });
+
+
+           for(int i = 0; i<list.size();i++){
+               insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes(i), Bytes.toBytes(list.get(i).a+"/"+list.get(i).b.toString()));
+
+           }
+
             context.write(null, insHBase);
 
         }
