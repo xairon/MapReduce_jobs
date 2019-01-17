@@ -2,10 +2,11 @@ package mapreduce;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -15,23 +16,15 @@ import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.util.Counter;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Job;
 
 
 public class mapred1 {
 
-    public static class UEGrade {
-        public final String UE;
-        public final int grade;
-
-        public UEGrade(String UE, int grade) {
-            this.UE = UE;
-            this.grade = grade;
-        }
-    }
-
-    static class Mapper1 extends TableMapper<ImmutableBytesWritable, UEGrade> {
+    static class Mapper1 extends TableMapper<ImmutableBytesWritable, ImmutableBytesWritable> {
         private static final IntWritable one = new IntWritable(1);
 
         public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
@@ -46,51 +39,51 @@ public class mapred1 {
             String student = splitted[1].substring(2,12);
 
             byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("G"));
-            String snotes = new String(bnotes);
 
-            String yearSemEtu = year+"/"+semester+"/"+student;
+            String triplet = year + "/" + student + "/" + new String(bnotes);
 
-            context.write(new ImmutableBytesWritable(yearSemEtu.getBytes()),
-                    new UEGrade(splitted[2], Integer.valueOf(snotes)));
+            context.write(new ImmutableBytesWritable(semester.getBytes()),
+                    new ImmutableBytesWritable(triplet.getBytes()));
         }
 
 
     }
 
-    public static class Reducer1 extends TableReducer<ImmutableBytesWritable, UEGrade, ImmutableBytesWritable> {
+    public static class Reducer1 extends TableReducer<ImmutableBytesWritable, IntWritable, ImmutableBytesWritable> {
 
-        public void reduce(ImmutableBytesWritable key, Iterable<UEGrade> values, Context context)
-                throws IOException, InterruptedException {
+        public void reduce(ImmutableBytesWritable key, Iterable<ImmutableBytesWritable> values, Context context){
 
-            int sum = 0;
-            int compteur = 0;
+            String semester = new String(key.get());
+            HashMap<String, HashMap<String, List<Double>>> classes = new HashMap<>();
 
-            HashMap<String,Integer> ueGradeMap = new HashMap<>();
-            HashMap<String,Integer> ueGradeCount = new HashMap<>();
-
-            for (UEGrade ueGrade: values){
-                sum += ueGrade.grade;
-                compteur++;
-
-                ueGradeMap.putIfAbsent(ueGrade.UE, 0);
-                ueGradeMap.compute(ueGrade.UE,(k,v) -> v + ueGrade.grade);
-
-                ueGradeCount.putIfAbsent(ueGrade.UE, 0);
-                ueGradeCount.compute(ueGrade.UE, (k,v) -> v+1);
+            for (ImmutableBytesWritable value : values){
+                String[] decode = (new String(value.get())).split("/");
+                String year = decode[0]; String student = decode[1];
+                double grade = Integer.parseInt(decode[3])/100.0;
+                classes.putIfAbsent(year, new HashMap<>());
+                HashMap<String, List<Double>> students = classes.get(year);
+                students.putIfAbsent(student, new ArrayList<>());
+                students.get(student).add(grade);
             }
 
 
-            double moyenne = ((double)sum/(double)compteur);
-            String smoyenne = String.valueOf(moyenne);
-            System.out.println(smoyenne);
+            classes.forEach((year, students) -> {
+                Counter all = new Counter(0);
+                Counter passed = new Counter(0);
+                students.forEach((student, grades) -> {
+                    all.increment();
+                    if (grades.stream().mapToDouble(Double::doubleValue).sum()/grades.size() >= 10d)
+                        passed.increment();
+                });
+                double taux = ((double)passed.get())/((double)passed.get());
+                String clef = semester + "/" + year;
+                Put insHBase = new Put(clef.getBytes());
+                insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("S"), Bytes.toBytes(taux));
+                try {
+                    context.write(null, insHBase);
+                }catch (InterruptedException | IOException ignored){}
 
-
-            Put insHBase = new Put(key.get());
-
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(smoyenne));
-            // write data to Hbase table
-            context.write(null, insHBase);
-
+            });
 
         }
     }
@@ -99,9 +92,8 @@ public class mapred1 {
         Job job = Job.getInstance(config, "TestconfigMapper");
         job.setJarByClass(mapred1.class);
         Scan scan = new Scan();
-        scan.setCaching(500);        // 1 is the default in Scan, which will be bad for MapReduce jobs
-        scan.setCacheBlocks(false);  // don't set to true for MR jobs
-// set other scan attrs
+        scan.setCaching(500);
+        scan.setCacheBlocks(false);
 
         TableMapReduceUtil.initTableMapperJob(
                 "A:G",      // input table
