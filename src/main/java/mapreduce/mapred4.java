@@ -16,6 +16,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,7 +96,17 @@ public class mapred4 {
                 String[] splittedValue = Bytes.toString(text.copyBytes()).split("/");
                 String ue = splittedValue[0];
                 String ueName = splittedValue[1];
-                double grade = Double.valueOf(splittedValue[2]);
+
+                double grade_ = 0;
+
+                try {
+                    grade_ = Double.valueOf(splittedValue[2]);
+                }
+                catch (ArrayIndexOutOfBoundsException e) {
+                    System.err.println("Error with key "+ Arrays.toString(splittedValue));
+                }
+
+                double grade = grade_;
 
                 String ueComp = ue+"/"+ueName;
 
