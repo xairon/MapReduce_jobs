@@ -145,7 +145,7 @@ public class mapred6 {
 
         TableUtil.createTableIfNotExists(connection, "21402752Q7", "#");
 
-        Job job = Job.getInstance(config, "TestconfigMapper");
+        Job job = Job.getInstance(config, "Q7Mapper");
         job.setJarByClass(mapred6.class);
         Scan scan = new Scan();
         scan.setCaching(500);        // 1 is the default in Scan, which will be bad for MapReduce jobs
