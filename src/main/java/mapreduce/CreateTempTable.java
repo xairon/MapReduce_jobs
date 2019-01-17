@@ -49,8 +49,6 @@ public class CreateTempTable {
 
             String courseKey = ue+"/"+yearInvert;
 
-            System.out.println("courseKey: "+courseKey);
-
             Result result;
             try {
                 Scan firstUEScanner = new Scan();
