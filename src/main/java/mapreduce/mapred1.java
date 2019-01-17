@@ -59,7 +59,7 @@ public class mapred1 {
             for (ImmutableBytesWritable value : values){
                 String[] decode = (new String(value.get())).split("/");
                 String year = decode[0]; String student = decode[1];
-                double grade = Integer.parseInt(decode[3])/100.0;
+                double grade = Integer.parseInt(decode[2])/100.0;
                 classes.putIfAbsent(year, new HashMap<>());
                 HashMap<String, List<Double>> students = classes.get(year);
                 students.putIfAbsent(student, new ArrayList<>());
