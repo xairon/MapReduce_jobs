@@ -109,19 +109,8 @@ public class CreateTempTable {
         Configuration config = HBaseConfiguration.create();
 
         Connection connection = ConnectionFactory.createConnection(config);
-        TableName tableName = TableName.valueOf("21402752_Temp");
 
-        if (!connection.getAdmin().tableExists(tableName)){
-            System.out.println("temp table does not exists, beginning table creation...");
-            System.out.println("creating temp table descriptor...");
-
-            HTableDescriptor hTableDescriptor = new HTableDescriptor(tableName);
-            System.out.println("Adding column family...");
-            hTableDescriptor.addFamily(new HColumnDescriptor("#".getBytes()));
-            System.out.println("creating table from table descriptor...");
-            connection.getAdmin().createTable(hTableDescriptor);
-            System.out.println("finished creating temp table");
-        }
+        TableUtil.createTableIfNotExists(connection, "21402752_Temp", "#");
 
         Job job = Job.getInstance(config, "TestconfigMapper");
         job.setJarByClass(MapperTemp.class);
