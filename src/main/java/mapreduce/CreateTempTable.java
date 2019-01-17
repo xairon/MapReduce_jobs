@@ -96,7 +96,7 @@ public class CreateTempTable {
         }
 
     }
-    public static class ReducerTemp extends TableReducer<ImmutableBytesWritable, Pair<String,Integer>, ImmutableBytesWritable> {
+    public static class ReducerTemp extends TableReducer<ImmutableBytesWritable, Text, ImmutableBytesWritable> {
 
         public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
