@@ -13,11 +13,17 @@ public class TableUtil {
     /**
      * @param connection
      * @param name
-     * @param columnFamilies
+     * @param columnFamily mandatory column family name
+     * @param columnFamilies additional column families
      * @return true if table was dropped
      * @throws IOException
      */
-    public static boolean createTableIfNotExists(Connection connection, String name, String... columnFamilies) throws IOException {
+    public static boolean createTableIfNotExists(
+            Connection connection,
+            String name,
+            String columnFamily,
+            String... columnFamilies) throws IOException {
+
         TableName tableName = TableName.valueOf(name);
 
         if (!connection.getAdmin().tableExists(tableName)){
@@ -25,8 +31,11 @@ public class TableUtil {
             System.out.println("creating temp table descriptor...");
 
             HTableDescriptor hTableDescriptor = new HTableDescriptor(tableName);
-            System.out.println("Adding column family...");
+            System.out.println("Adding column families...");
 
+
+            System.out.println("Creating column family: "+columnFamily);
+            hTableDescriptor.addFamily(new HColumnDescriptor(columnFamily.getBytes()));
             for (int i = 0; i < columnFamilies.length; i++) {
                 System.out.println("Creating column family: "+columnFamilies[i]);
                 hTableDescriptor.addFamily(new HColumnDescriptor(columnFamilies[i].getBytes()));
