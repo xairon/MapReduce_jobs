@@ -1,6 +1,8 @@
 package mapreduce;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
@@ -13,12 +15,13 @@ import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.protobuf.generated.ClientProtos;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 
 import java.io.IOException;
 
 public class mapred3 {
-    static class Mapper3 extends TableMapper<ImmutableBytesWritable, IntWritable> {
+    static class Mapper3 extends TableMapper<ImmutableBytesWritable, Text> {
 
         private Table table;
         private Connection conn;
@@ -37,50 +40,40 @@ public class mapred3 {
             conn.close();
         }
         public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
-            String name = null;
-            // get rowKey and convert it to string
-            String inKey = new String(row.get());
-            // set new key having only date
-            String oKey = inKey.split("/")[0];
-            String oKey2 = inKey.split("/")[2];
-            String keymoyenne = oKey2+"/"+Integer.toString(9999-Integer.valueOf(oKey));
-            // get sales column in byte format first and then convert it to
-            // string (as it is stored as string from hbase shell)
-            byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("G"));
-            String snotes = new String(bnotes);
+            String[] splitKey = (new String(row.get())).split("/");
+            String year = splitKey[0];
+            String sem = splitKey[1];
+            String etu = splitKey[2];
 
 
-            try {
-                Scan firstUEScanner = new Scan();
-                firstUEScanner.withStartRow(keymoyenne.getBytes());
-                firstUEScanner.setMaxResultSize(1);
-                firstUEScanner.setCacheBlocks(false);
 
-                ResultScanner resultScanner = table.getScanner(firstUEScanner);
-                Result result = resultScanner.next();
+            Get get = new Get(etu.getBytes());
+            get.addFamily("#".getBytes());
 
+            Result result = table.get(get);
 
-                if (result == null) {
-                    System.out.println("key doesn't exists (Exo3): "+keymoyenne);
-                    //requested key doesn't exist
-                    return;
-                }
-
-                byte[] nom = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("N"));
-                name = Bytes.toString(nom);
-                key = name+"/"+oKey2+"/"+oKey;
-
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Erreur Exo3");
+            if (result == null){
+                System.err.println("Student not found in Student table: "+etu);
+                return;
             }
 
+            String program = Bytes.toString(result.getValue("#".getBytes(), "P".getBytes()));
 
-            // Read the data
+            for (Cell cell: value.listCells()) {
+                String[] splittedUE = Bytes.toString(CellUtil.cloneQualifier(cell)).split("/");
+                String ue = splittedUE[0];
+                String ueName = splittedUE[1];
+                String str_grade = Bytes.toString(CellUtil.cloneValue(cell));
 
-            // emit date and sales values
-            context.write(new ImmutableBytesWritable(key.getBytes()), new IntWritable(Integer.valueOf(snotes)));
+                String outKey = year+"/"+ue;
+                String outValue = ueName+"/"+(Double.valueOf(str_grade)/100.0);
+
+                context.write(
+                        new ImmutableBytesWritable(outKey.getBytes()),
+                        new Text(outValue));
+
+            }
+
         }
 
     }
@@ -94,18 +87,19 @@ public class mapred3 {
             int compteur = 0;
             // loop through different sales vales and add it to sum
             for (IntWritable inputvalue : values) {
-
-                sum += inputvalue.get();
+                double a = Double.valueOf(inputvalue.get())/100.0;
+                if(a>=10)
+                {sum++;}
                 compteur++;
             }
-            double moyenne = ((double)sum/(double)compteur)/100.0;
+            double moyenne = ((double)sum/(double)compteur);
             String smoyenne = String.valueOf(moyenne);
-            System.out.println(moyenne);
+            System.out.println(smoyenne);
             // create hbase put with rowkey as date
 
             Put insHBase = new Put(key.get());
             // insert sum value to hbase
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(smoyenne));
+            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(smoyenne));
             // write data to Hbase table
             context.write(null, insHBase);
 
