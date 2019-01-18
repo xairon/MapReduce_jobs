@@ -89,7 +89,7 @@ public class mapred6 {
 
         public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
-            ArrayList <Pair<String, Double>>list = null;
+            ArrayList <Pair<String, Double>>list = new ArrayList<>();
             HashMap<String,Integer> sum= new HashMap<>();
             HashMap<String,Double>listnote = new HashMap<>();
 
@@ -110,7 +110,7 @@ public class mapred6 {
             for (Map.Entry<String,Double> entry : listnote.entrySet()) {
                 double avgGrade = entry.getValue()/((double) sum.get(entry.getKey()));
 
-
+                if(entry.getKey()!=null)
                 list.add(new Pair<>(entry.getKey(), avgGrade));
             }
 
@@ -124,6 +124,7 @@ public class mapred6 {
               }
               return 0;
           });
+
 
 
            for(int i = 0; i<list.size();i++){
