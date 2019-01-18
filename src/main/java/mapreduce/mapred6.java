@@ -10,7 +10,6 @@ import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 
@@ -94,8 +93,6 @@ public class mapred6 {
             HashMap<String,Integer> sum= new HashMap<>();
             HashMap<String,Double>listnote = new HashMap<>();
 
-            Pair <String,Double> pair = null;
-
 
 
 
@@ -112,7 +109,7 @@ public class mapred6 {
             Put insHBase = new Put(key.get());
             for (Map.Entry<String,Double> entry : listnote.entrySet()) {
                 double avgGrade = entry.getValue()/((double) sum.get(entry.getKey()));
-                 String y =entry.getKey();
+
 
                 list.add(new Pair<>(entry.getKey(), avgGrade));
             }
@@ -133,8 +130,10 @@ public class mapred6 {
                insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes(i), Bytes.toBytes(list.get(i).a+"/"+list.get(i).b.toString()));
 
            }
+            try {
+                context.write(null, insHBase);
+            }catch (InterruptedException | IOException ignored){}
 
-            context.write(null, insHBase);
 
         }
     }
