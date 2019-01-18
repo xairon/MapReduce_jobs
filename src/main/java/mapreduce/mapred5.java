@@ -10,12 +10,13 @@ import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 
 import java.io.IOException;
 
 public class mapred5 {
-    static class Mapper5 extends TableMapper<ImmutableBytesWritable, IntWritable> {
+    static class Mapper5 extends TableMapper<ImmutableBytesWritable, Text> {
 
         private Table table;
         private Connection conn;
@@ -25,7 +26,7 @@ public class mapred5 {
         protected void setup(Context context) throws IOException, InterruptedException {
             Configuration hbaseConfig = HBaseConfiguration.create();
             conn = ConnectionFactory.createConnection(hbaseConfig);
-            this.table = conn.getTable(TableName.valueOf("A:C"));
+            this.table = conn.getTable(TableName.valueOf("21402752Q4"));
         }
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
@@ -34,18 +35,14 @@ public class mapred5 {
             conn.close();
         }
         public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
-            String name = null;
-            // get rowKey and convert it to string
-            String inKey = new String(row.get());
-            // set new key having only date
-            String oKey = inKey.split("/")[0];
-            String oKey2 = inKey.split("/")[2];
-            String keymoyenne = oKey2+"/"+Integer.toString(9999-Integer.valueOf(oKey));
-            // get sales column in byte format first and then convert it to
-            // string (as it is stored as string from hbase shell)
-            byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("G"));
+            String[] splitKey = (new String(row.get())).split("/");
+            String year = splitKey[0];
+            String ueid = splitKey[1];
+
+            String clé = ueid+"/"+String.valueOf(+9999-(Integer.valueOf(year)));
+            byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("N"));
             String snotes = new String(bnotes);
-            Get getValue = new Get(keymoyenne.getBytes());
+            Get getValue = new Get(clé.getBytes());
 
             getValue.addColumn("#".getBytes(), "N".getBytes());
 
@@ -57,9 +54,9 @@ public class mapred5 {
                     return;
                 }
 
-                byte[] nom = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("N"));
-                name = Bytes.toString(nom);
-                key = name+"/"+oKey2+"/"+oKey;
+                byte[] instructor = result.getValue(Bytes.toBytes("I"), Bytes.toBytes("1"));
+                String name = Bytes.toString(instructor);
+                key = name;
 
             }
             finally {
@@ -70,32 +67,27 @@ public class mapred5 {
             // Read the data
 
             // emit date and sales values
-            context.write(new ImmutableBytesWritable(key.getBytes()), new IntWritable(Integer.valueOf(snotes)));
+            context.write(new ImmutableBytesWritable(key.getBytes()), new Text(year+"/"+ueid+"*"+snotes));
         }
 
     }
-    public static class Reducer5 extends TableReducer<ImmutableBytesWritable, IntWritable, ImmutableBytesWritable> {
+    public static class Reducer5 extends TableReducer<ImmutableBytesWritable, Text, ImmutableBytesWritable> {
 
-        public void reduce(ImmutableBytesWritable key, Iterable<IntWritable> values, Context context)
+        public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
 
-
-            int sum = 0;
-            int compteur = 0;
+            String resu = null;
             // loop through different sales vales and add it to sum
-            for (IntWritable inputvalue : values) {
+            for (Text inputvalue : values) {
 
-                sum += inputvalue.get();
-                compteur++;
+               resu = inputvalue.toString();
             }
-            double moyenne = ((double)sum/(double)compteur)/100.0;
-            String smoyenne = String.valueOf(moyenne);
-            System.out.println(moyenne);
-            // create hbase put with rowkey as date
+
 
             Put insHBase = new Put(key.get());
             // insert sum value to hbase
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(smoyenne));
+
+            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(resu));
             // write data to Hbase table
             context.write(null, insHBase);
 
@@ -116,7 +108,7 @@ public class mapred5 {
 // set other scan attrs
 
         TableMapReduceUtil.initTableMapperJob(
-                "A:G",      // input table
+                "A:C",      // input table
                 scan,             // Scan instance to control CF and attribute selection
                 mapred5.Mapper5.class,   // mapper class
                 ImmutableBytesWritable.class,             // mapper output key
