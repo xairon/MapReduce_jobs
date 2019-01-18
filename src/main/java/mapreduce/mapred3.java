@@ -102,7 +102,7 @@ public class mapred3 {
 
             Put insHBase = new Put(clé.getBytes());
             // insert sum value to hbase
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(uname+"/"+smoyenne));
+            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("N"), Bytes.toBytes(uname+"/"+smoyenne));
             // write data to Hbase table
             context.write(null, insHBase);
 
