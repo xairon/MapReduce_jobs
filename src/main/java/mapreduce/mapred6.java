@@ -128,7 +128,7 @@ public class mapred6 {
 
 
            for(int i = 0; i<list.size();i++){
-               insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes(i), Bytes.toBytes(list.get(i).a+"/"+list.get(i).b.toString()));
+               insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes(String.valueOf(i)), Bytes.toBytes(list.get(i).a+"/"+list.get(i).b.toString()));
 
            }
             try {
