@@ -65,6 +65,9 @@ public class mapred5 {
                 splitrate = valueR.split("/");
                 rate = splitrate[1];
                 uename = splitrate[0];}
+            else
+                rate = "none";
+                uename = "none";
 
 
 
@@ -72,13 +75,15 @@ public class mapred5 {
             for (Cell cell: value.listCells()) {
 
                 String instructor = Bytes.toString(CellUtil.cloneValue(cell));
-
+                String Outvalue = new String();
                 String outKey = instructor+"/"+year;
-                String outValue = ueid+"/"+uename+"/"+rate;
+               if(uename!="none" && rate !="none"){
+                   Outvalue = ueid+"/"+uename+"/"+rate;
+               }
 
                 context.write(
                         new ImmutableBytesWritable(outKey.getBytes()),
-                        new Text(outValue));
+                        new Text(Outvalue));
 
             }
 
@@ -92,23 +97,27 @@ public class mapred5 {
         public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
 
-            String resu = null;
-            // loop through different sales vales and add it to sum
-            for (Text inputvalue : values) {
+            String[] splitKey = (new String(key.get())).split("/");
+            String intervenant = splitKey[0];
+            String year = splitKey[1];
+            String Outvalue = new String();
+            String clé = intervenant;
+            for(Text text : values){
+                Outvalue = text.toString();
 
-               resu = inputvalue.toString();
             }
 
+            // create hbase put with rowkey as date
 
-            Put insHBase = new Put(key.get());
+            Put insHBase = new Put(clé.getBytes());
             // insert sum value to hbase
-
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(resu));
+            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(Outvalue+year));
             // write data to Hbase table
             context.write(null, insHBase);
 
         }
     }
+
     public static void main(String[] args) throws Exception {
         Configuration config = HBaseConfiguration.create();
 
