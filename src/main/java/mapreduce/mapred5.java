@@ -74,10 +74,13 @@ public class mapred5 {
 
 
 
+            Scan scan = new Scan();
 
-            for (Cell cell: value.listCells()) {
+            scan.addFamily(Bytes.toBytes("I"));
+            ResultScanner scanner = table.getScanner(scan);
+            for (Result s : scanner) {
 
-                String instructor = Bytes.toString(CellUtil.cloneValue(cell));
+                String instructor = s.toString();
                 String outKey = instructor + "/" + year;
 
                 String Outvalue = ueid + "/" + uename + "/" + rate;
