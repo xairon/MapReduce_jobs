@@ -51,7 +51,7 @@ public class mapred5 {
 
                 return;
             }
-            String[] splitrate = new String[0];
+            String[] splitrate;
             String rate = new String();
             String uename = new String();
 
@@ -61,13 +61,13 @@ public class mapred5 {
             String valueR = Bytes.toString(valuerate);
             System.out.println(clé);
             System.out.println(valueR);
-            if(!valueR.equals("null")){
+            if(valueR!=null){
                 splitrate = valueR.split("/");
+                uename = splitrate[0];
                 rate = splitrate[1];
-                uename = splitrate[0];}
-            else
-                rate = "none";
-                uename = "none";
+            }
+
+
 
 
 
@@ -107,8 +107,7 @@ public class mapred5 {
                 String ueid = splittedValue[0];
                 String ueName = splittedValue[1];
                 String rate = splittedValue[2];
-                Outvalue = ueid+"/"+year+"/"+ueName+"/"+rate;
-
+                Outvalue = ueid+"/"+year+"/"+ueName+"/"+"/"+rate;
             }
 
             // create hbase put with rowkey as date
