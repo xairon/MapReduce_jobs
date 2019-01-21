@@ -44,15 +44,17 @@ public class mapred5 {
             String y2 = String.valueOf(y);
             String clé = y2+"/"+ueid;
             Get get = new Get(clé.getBytes());
+            get.addColumn("#".getBytes(), "R".getBytes());
             Result result = table.get(get);
 
             if (result == null){
 
                 return;
             }
+            byte[] valuerate = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("R"));
+            String valuer = Bytes.toString(valuerate);
 
-            String valuerate = Bytes.toString(result.getValue("#".getBytes(), "R".getBytes()));
-            String[] splitrate = valuerate.split("/");
+            String[] splitrate = valuer.split("/");
             String rate = splitrate[1];
             String uename = splitrate[0];
 
