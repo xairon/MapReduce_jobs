@@ -90,7 +90,7 @@ public class mapred5 {
 
                     }
                 }
-                }
+                }check = false;
             }
 
 
