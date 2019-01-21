@@ -68,8 +68,8 @@ public class mapred5 {
             }
                       else{
                           check = true;}
-            System.out.println(uename);
-            System.out.println(rate);
+           // System.out.println(uename);
+           // System.out.println(rate);
 
 
 
