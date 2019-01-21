@@ -60,8 +60,8 @@ public class mapred5 {
 
 
             String valueR = Bytes.toString(valuerate);
-            //System.out.println(valueR);
-                      if(!valueR.isEmpty()){
+            System.out.println(valueR);
+                      if(valueR!=null){
                 splitrate = valueR.split("/");
                 uename = splitrate[0];
                 rate = splitrate[1];
