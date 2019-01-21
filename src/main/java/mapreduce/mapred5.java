@@ -54,9 +54,9 @@ public class mapred5 {
             byte[] valuerate = new byte[0];
             String rate = new String();
             String uename = new String();
-            if(result.getValue(Bytes.toBytes("#"), Bytes.toBytes("R"))!= null) {
-                valuerate = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("R"));
-            }
+
+            valuerate = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("R"));
+
 
             String valueR = Bytes.toString(valuerate);
             System.out.println(clé);
