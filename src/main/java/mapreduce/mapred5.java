@@ -44,8 +44,6 @@ public class mapred5 {
             String y2 = String.valueOf(y);
             String clé = y2+"/"+ueid;
             Get get = new Get(clé.getBytes());
-            get.addFamily("#".getBytes());
-
             Result result = table.get(get);
 
             if (result == null){
