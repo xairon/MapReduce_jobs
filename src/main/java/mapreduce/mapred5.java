@@ -49,7 +49,6 @@ public class mapred5 {
             boolean check = false;
 
             if (result == null){
-                System.err.println(clé.getBytes());
                 return;
             }
             String[] splitrate;
@@ -65,9 +64,9 @@ public class mapred5 {
                 splitrate = valueR.split("/");
                 uename = splitrate[0];
                 rate = splitrate[1];
+                System.err.println("not null: "+clé);
             }
             else{
-                System.err.println("valuerate: "+clé);
                 check = true;
             }
            // System.out.println(uename);
@@ -77,8 +76,7 @@ public class mapred5 {
 
 
             for (Cell cell: value.listCells()) {
-                System.err.println("column family: "+new String(CellUtil.cloneFamily(cell)));
-                if (CellUtil.cloneFamily(cell).equals("I".getBytes())){
+                if (Bytes.toString(CellUtil.cloneFamily(cell)).equals("I")){
                     String instructor = Bytes.toString(CellUtil.cloneValue(cell));
                     String outKey = instructor + "/" + year;
 
@@ -95,12 +93,7 @@ public class mapred5 {
                     }
                 }
             }
-            }
-
-
-
-
-
+        }
 
     }
     public static class Reducer5 extends TableReducer<ImmutableBytesWritable, Text, ImmutableBytesWritable> {
