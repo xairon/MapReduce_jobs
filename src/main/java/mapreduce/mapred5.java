@@ -55,9 +55,9 @@ public class mapred5 {
                     return;
                 }
 
-                byte[] instructor = result.getValue(Bytes.toBytes("I"), Bytes.toBytes("\\x00\\x00\\x00\\x01"));
+                byte[] instructor = result.getValue(Bytes.toBytes("I"), Bytes.toBytes("1"));
                 String name = Bytes.toString(instructor);
-                key = name;
+                key = "test";
 
             }
             finally {
