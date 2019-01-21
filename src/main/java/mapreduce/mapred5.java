@@ -61,7 +61,7 @@ public class mapred5 {
             String valueR = Bytes.toString(valuerate);
             System.out.println(clé);
             System.out.println(valueR);
-            if(!valueR.isEmpty()){
+            if(!valueR.equals("null")){
                 splitrate = valueR.split("/");
                 rate = splitrate[1];
                 uename = splitrate[0];}
