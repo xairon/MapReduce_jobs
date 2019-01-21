@@ -49,7 +49,7 @@ public class mapred5 {
             boolean check = false;
 
             if (result == null){
-
+                System.err.println(clé.getBytes());
                 return;
             }
             String[] splitrate;
@@ -61,20 +61,23 @@ public class mapred5 {
 
             String valueR = Bytes.toString(valuerate);
             //System.out.println(valueR);
-                      if(valueR!=null){
+            if(valueR!=null){
                 splitrate = valueR.split("/");
                 uename = splitrate[0];
                 rate = splitrate[1];
             }
-                      else{
-                          check = true;}
+            else{
+                System.err.println("valuerate: "+clé);
+                check = true;
+            }
            // System.out.println(uename);
            // System.out.println(rate);
 
 
 
 
-             for (Cell cell: value.listCells()) {
+            for (Cell cell: value.listCells()) {
+                System.err.println("column family: "+new String(CellUtil.cloneFamily(cell)));
                 if (CellUtil.cloneFamily(cell).equals("I".getBytes())){
                     String instructor = Bytes.toString(CellUtil.cloneValue(cell));
                     String outKey = instructor + "/" + year;
@@ -91,7 +94,7 @@ public class mapred5 {
 
                     }
                 }
-                }
+            }
             }
 
 
