@@ -57,7 +57,7 @@ public class mapred5 {
 
                 byte[] instructor = result.getValue(Bytes.toBytes("I"), Bytes.toBytes("1"));
                 String name = Bytes.toString(instructor);
-                key = "test";
+                key = name;//renvoie null
 
             }
             finally {
@@ -68,7 +68,7 @@ public class mapred5 {
             // Read the data
 
             // emit date and sales values
-            context.write(new ImmutableBytesWritable(key.getBytes()), new Text(year+"/"+ueid+"*"+snotes));
+            context.write(new ImmutableBytesWritable(key.getBytes()), new Text(year+"/"+ueid+"/"+snotes));
         }
 
     }
