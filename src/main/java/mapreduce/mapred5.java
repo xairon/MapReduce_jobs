@@ -62,9 +62,9 @@ public class mapred5 {
             System.out.println(clé);
             System.out.println(valueR);
             if(valueR!=null){
-             splitrate = valueR.split("/");
-            rate = splitrate[1];
-            uename = splitrate[0];}
+                splitrate = valueR.split("/");
+                rate = splitrate[1];
+                uename = splitrate[0];}
 
 
 
@@ -92,20 +92,18 @@ public class mapred5 {
         public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
 
-            String[] splitKey = (new String(key.get())).split("/");
-            String intervenant = splitKey[0];
-            String year = splitKey[1];
-            String Outvalue = new String();
-            String clé = intervenant;
-           for(Text text : values){
-               Outvalue = text.toString();
-           }
+            String resu = null;
+            // loop through different sales vales and add it to sum
+            for (Text inputvalue : values) {
 
-            // create hbase put with rowkey as date
+               resu = inputvalue.toString();
+            }
 
-            Put insHBase = new Put(clé.getBytes());
+
+            Put insHBase = new Put(key.get());
             // insert sum value to hbase
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(Outvalue+year));
+
+            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(resu));
             // write data to Hbase table
             context.write(null, insHBase);
 
