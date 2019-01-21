@@ -57,7 +57,12 @@ public class mapred5 {
 
                 byte[] instructor = result.getValue(Bytes.toBytes("I"), Bytes.toBytes("1"));
                 String name = Bytes.toString(instructor);
-                key = name;
+                if(name.isEmpty()){
+                    key = "none";}
+                    else{
+                        key = name;
+                }
+
 
             }
             finally {
