@@ -77,9 +77,9 @@ public class mapred5 {
                 String instructor = Bytes.toString(CellUtil.cloneValue(cell));
                 String Outvalue = new String();
                 String outKey = instructor+"/"+year;
-               if(uename!="none" && rate !="none"){
+
                    Outvalue = ueid+"/"+uename+"/"+rate;
-               }
+
 
                 context.write(
                         new ImmutableBytesWritable(outKey.getBytes()),
