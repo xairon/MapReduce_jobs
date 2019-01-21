@@ -1,6 +1,8 @@
 package mapreduce;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
@@ -26,7 +28,7 @@ public class mapred5 {
         protected void setup(Context context) throws IOException, InterruptedException {
             Configuration hbaseConfig = HBaseConfiguration.create();
             conn = ConnectionFactory.createConnection(hbaseConfig);
-            this.table = conn.getTable(TableName.valueOf("A:C"));
+            this.table = conn.getTable(TableName.valueOf("21402752Q4"));
         }
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
@@ -36,39 +38,42 @@ public class mapred5 {
         }
         public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
             String[] splitKey = (new String(row.get())).split("/");
-            String year = splitKey[0];
-            String ueid = splitKey[1];
+            String year = splitKey[1];
+            String ueid = splitKey[0];
             int y = (9999-(Integer.valueOf(year)));
             String y2 = String.valueOf(y);
-            String clé = ueid+"/"+y2;
-            byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("R"));
-            String snotes = new String(bnotes);
-            Get getValue = new Get(clé.getBytes());
+            String clé = y2+"/"+ueid;
+            Get get = new Get(clé.getBytes());
+            get.addFamily("#".getBytes());
 
-            getValue.addColumn("#".getBytes(), "N".getBytes());
+            Result result = table.get(get);
 
-            try {
-                Result result = table.get(getValue);
-                if (!table.exists(getValue)) {
+            if (result == null){
 
-                    //requested key doesn't exist
-                    return;
-                }
-
-                byte[] instructor = result.getValue(Bytes.toBytes("I"), Bytes.toBytes("/x00/x00/x00/x01"));
-                String name = Bytes.toString(instructor);
-                key = name;//renvoie null
-
-            }
-            finally {
-
+                return;
             }
 
+            String valuerate = Bytes.toString(result.getValue("#".getBytes(), "R".getBytes()));
+            String[] splitrate = valuerate.split("/");
+            String rate = splitrate[1];
+            String uename = splitrate[0];
 
-            // Read the data
 
-            // emit date and sales values
-            context.write(new ImmutableBytesWritable(key.getBytes()), new Text(year+"/"+ueid+"/"+snotes));
+            for (Cell cell: value.listCells()) {
+
+                String instructor = Bytes.toString(CellUtil.cloneValue(cell));
+
+                String outKey = instructor+"/"+year;
+                String outValue = ueid+"/"+uename+"/"+rate;
+
+                context.write(
+                        new ImmutableBytesWritable(outKey.getBytes()),
+                        new Text(outValue));
+
+            }
+
+
+
         }
 
     }
@@ -109,7 +114,7 @@ public class mapred5 {
 // set other scan attrs
 
         TableMapReduceUtil.initTableMapperJob(
-                "21402752Q4",      // input table
+                "A:C",      // input table
                 scan,             // Scan instance to control CF and attribute selection
                 mapred5.Mapper5.class,   // mapper class
                 ImmutableBytesWritable.class,             // mapper output key
