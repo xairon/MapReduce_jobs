@@ -103,7 +103,11 @@ public class mapred5 {
             String Outvalue = new String();
             String clé = intervenant;
             for(Text text : values){
-                Outvalue = text.toString();
+                String[] splittedValue = Bytes.toString(text.copyBytes()).split("/");
+                String ueid = splittedValue[0];
+                String ueName = splittedValue[1];
+                String rate = splittedValue[2];
+                Outvalue = ueid+year+ueName+rate;
 
             }
 
@@ -111,7 +115,7 @@ public class mapred5 {
 
             Put insHBase = new Put(clé.getBytes());
             // insert sum value to hbase
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(Outvalue+year));
+            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(Outvalue));
             // write data to Hbase table
             context.write(null, insHBase);
 
