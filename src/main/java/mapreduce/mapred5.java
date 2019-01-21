@@ -46,6 +46,7 @@ public class mapred5 {
             Get get = new Get(clé.getBytes());
             get.addColumn("#".getBytes(), "R".getBytes());
             Result result = table.get(get);
+            boolean check = false;
 
             if (result == null){
 
@@ -65,6 +66,8 @@ public class mapred5 {
                 uename = splitrate[0];
                 rate = splitrate[1];
             }
+                      else{
+                          check = true;}
             System.out.println(uename);
             System.out.println(rate);
 
@@ -75,17 +78,17 @@ public class mapred5 {
             for (Cell cell: value.listCells()) {
 
                 String instructor = Bytes.toString(CellUtil.cloneValue(cell));
-               String outKey = instructor+"/"+year;
+                String outKey = instructor + "/" + year;
 
-                String Outvalue = ueid+"/"+uename+"/"+rate;
+                String Outvalue = ueid + "/" + uename + "/" + rate;
 
+                if (check == false) {
+                    context.write(
+                            new ImmutableBytesWritable(outKey.getBytes()),
+                            new Text(Outvalue));
 
-                context.write(
-                        new ImmutableBytesWritable(outKey.getBytes()),
-                        new Text(Outvalue));
-
+                }
             }
-
 
 
         }
