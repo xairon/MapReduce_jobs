@@ -26,7 +26,7 @@ public class mapred5 {
         protected void setup(Context context) throws IOException, InterruptedException {
             Configuration hbaseConfig = HBaseConfiguration.create();
             conn = ConnectionFactory.createConnection(hbaseConfig);
-            this.table = conn.getTable(TableName.valueOf("21402752Q4"));
+            this.table = conn.getTable(TableName.valueOf("A:C"));
         }
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
@@ -109,7 +109,7 @@ public class mapred5 {
 // set other scan attrs
 
         TableMapReduceUtil.initTableMapperJob(
-                "A:C",      // input table
+                "21402752Q4",      // input table
                 scan,             // Scan instance to control CF and attribute selection
                 mapred5.Mapper5.class,   // mapper class
                 ImmutableBytesWritable.class,             // mapper output key
