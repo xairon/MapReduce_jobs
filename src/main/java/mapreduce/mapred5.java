@@ -51,20 +51,21 @@ public class mapred5 {
 
                 return;
             }
-            byte[] valuerate = new byte[0];
+            String[] splitrate = new String[0];
             String rate = new String();
             String uename = new String();
 
-            valuerate = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("R"));
+            byte[]valuerate = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("R"));
 
 
             String valueR = Bytes.toString(valuerate);
             System.out.println(clé);
             System.out.println(valueR);
-            String[] splitrate = valueR.split("/");
+            if(valueR!=null){
+             splitrate = valueR.split("/");
+            rate = splitrate[1];
+            uename = splitrate[0];}
 
-                 rate = splitrate[1];
-                 uename = splitrate[0];
 
 
 
