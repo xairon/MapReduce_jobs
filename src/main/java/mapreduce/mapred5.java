@@ -60,7 +60,7 @@ public class mapred5 {
 
 
             String valueR = Bytes.toString(valuerate);
-            System.out.println(valueR);
+            //System.out.println(valueR);
                       if(valueR!=null){
                 splitrate = valueR.split("/");
                 uename = splitrate[0];
@@ -82,6 +82,8 @@ public class mapred5 {
                     String Outvalue = ueid + "/" + uename + "/" + rate;
 
                     if (check == false) {
+                        System.out.println(outKey);
+                        System.out.println(Outvalue);
                         context.write(
                                 new ImmutableBytesWritable(outKey.getBytes()),
                                 new Text(Outvalue));
