@@ -75,10 +75,9 @@ public class mapred5 {
             for (Cell cell: value.listCells()) {
 
                 String instructor = Bytes.toString(CellUtil.cloneValue(cell));
-                String Outvalue = new String();
-                String outKey = instructor+"/"+year;
+               String outKey = instructor+"/"+year;
 
-                   Outvalue = ueid+"/"+uename+"/"+rate;
+                String Outvalue = ueid+"/"+uename+"/"+rate;
 
 
                 context.write(
