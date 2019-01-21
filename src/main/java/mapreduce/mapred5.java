@@ -22,7 +22,7 @@ public class mapred5 {
 
         private Table table;
         private Connection conn;
-        private String key = null;
+
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -51,12 +51,16 @@ public class mapred5 {
 
                 return;
             }
+            String rate = new String();
+            String uename = new String();
             byte[] valuerate = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("R"));
             String valueR = Bytes.toString(valuerate);
             System.out.println(valueR);
             String[] splitrate = valueR.split("/");
-            String rate = splitrate[1];
-            String uename = splitrate[0];
+            if(splitrate != null) {
+                 rate = splitrate[1];
+                 uename = splitrate[0];
+            }
 
 
             for (Cell cell: value.listCells()) {
