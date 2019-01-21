@@ -39,8 +39,8 @@ public class mapred5 {
             String year = splitKey[0];
             String ueid = splitKey[1];
 
-            String clé = ueid+"/"+String.valueOf(+9999-(Integer.valueOf(year)));
-            byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("N"));
+            String clé = ueid+"/"+(9999-(Integer.valueOf(year)));
+            byte[] bnotes = value.getValue(Bytes.toBytes("#"), Bytes.toBytes("R"));
             String snotes = new String(bnotes);
             Get getValue = new Get(clé.getBytes());
 
