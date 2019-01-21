@@ -74,27 +74,27 @@ public class mapred5 {
 
 
 
-            Scan scan = new Scan();
+             for (Cell cell: value.listCells()) {
+                if (CellUtil.cloneFamily(cell).equals("I".getBytes())){
+                    String instructor = Bytes.toString(CellUtil.cloneValue(cell));
+                    String outKey = instructor + "/" + year;
 
-            scan.addFamily(Bytes.toBytes("I"));
-            ResultScanner scanner = table.getScanner(scan);
-            for (Result s : scanner) {
+                    String Outvalue = ueid + "/" + uename + "/" + rate;
 
-                String instructor = s.toString();
-                String outKey = instructor + "/" + year;
+                    if (check == false) {
+                        context.write(
+                                new ImmutableBytesWritable(outKey.getBytes()),
+                                new Text(Outvalue));
 
-                String Outvalue = ueid + "/" + uename + "/" + rate;
-
-                if (check == false) {
-                    context.write(
-                            new ImmutableBytesWritable(outKey.getBytes()),
-                            new Text(Outvalue));
-
+                    }
+                }
                 }
             }
 
 
-        }
+
+
+
 
     }
     public static class Reducer5 extends TableReducer<ImmutableBytesWritable, Text, ImmutableBytesWritable> {
