@@ -61,7 +61,7 @@ public class mapred5 {
             String valueR = Bytes.toString(valuerate);
             System.out.println(clé);
             System.out.println(valueR);
-            if(valueR!=null){
+            if(!valueR.isEmpty()){
                 splitrate = valueR.split("/");
                 rate = splitrate[1];
                 uename = splitrate[0];}
@@ -107,7 +107,7 @@ public class mapred5 {
                 String ueid = splittedValue[0];
                 String ueName = splittedValue[1];
                 String rate = splittedValue[2];
-                Outvalue = ueid+year+ueName+rate;
+                Outvalue = ueid+"/"+year+"/"+ueName+"/"+rate;
 
             }
 
