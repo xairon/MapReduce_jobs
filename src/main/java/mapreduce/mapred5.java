@@ -113,7 +113,7 @@ public class mapred5 {
                 scan,             // Scan instance to control CF and attribute selection
                 mapred5.Mapper5.class,   // mapper class
                 ImmutableBytesWritable.class,             // mapper output key
-                IntWritable.class,
+                Text.class,
                 job);
         TableMapReduceUtil.initTableReducerJob(
                 "21402752Q6",      // output table
