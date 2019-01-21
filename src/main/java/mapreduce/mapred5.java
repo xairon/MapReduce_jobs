@@ -106,7 +106,7 @@ public class mapred5 {
                 String ueid = splittedValue[0];
                 String ueName = splittedValue[1];
                 String rate = splittedValue[2];
-                Outvalue = ueid+"/"+year+"/"+ueName+"/"+"/"+rate;
+                Outvalue = ueid+"/"+year+"/"+ueName+"/"+rate;
             }
 
             // create hbase put with rowkey as date
