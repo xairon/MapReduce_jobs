@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        Main.main(args);
+        CreateTempTable.main(args);
         mapred1.main(args);
         mapred2.main(args);
         mapred3.main(args);
