@@ -68,7 +68,7 @@ public class mapred5 {
                 String instructeur = String.valueOf(list);
 
                 String valeurTaux = new String(value.value());
-                String[] splitvalue = (new String(row.get())).split("/");
+                String[] splitvalue = valeurTaux.split("/");
                 String uename = splitvalue[0];
                 String rate = splitvalue[1];
 
