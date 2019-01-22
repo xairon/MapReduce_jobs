@@ -93,7 +93,7 @@ public class mapred5 {
 
 
             String Outvalue = new String();
-            String clé  = key.copyBytes().toString();
+            String clé  = key.toString();
             for(Text text : values) {
                 Outvalue = text.toString();
 
