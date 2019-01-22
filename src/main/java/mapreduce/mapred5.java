@@ -99,7 +99,8 @@ public class mapred5 {
 
             Put insHBase = new Put(key.get());
             // insert sum value to hbase
-
+            System.out.println(resu);
+            System.out.println(key.toString());
             insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(resu));
             // write data to Hbase table
             context.write(null, insHBase);
