@@ -58,16 +58,16 @@ public class mapred5 {
                     //requested key doesn't exist
                     return;
                 }
-                ArrayList<String> list = new ArrayList();
+                String list = new String();
                 Map<byte[], byte[]> familyMap = result.getFamilyMap(Bytes.toBytes("I"));
                 for(Map.Entry<byte[], byte[]> entry:familyMap.entrySet()) {
                     valeur = new String(entry.getValue());
-                    list.add(valeur);
+                    list+=(valeur+"/");
                 }
 
 
 
-                String instructeur = String.valueOf(list.toString());
+                String instructeur = list;
                 System.out.println(instructeur);
                 String valeurTaux = new String(value.value());
                 String[] splitvalue = valeurTaux.split("/");
@@ -99,7 +99,7 @@ public class mapred5 {
 
             String[] splitKey = (new String(key.get())).split("/");
             String intervenant = splitKey[0];
-            String year = splitKey[1];
+            //String year = splitKey[1];
             String Outvalue = new String();
             String clé = intervenant;
             for(Text text : values){
