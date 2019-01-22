@@ -1,10 +1,7 @@
 package mapreduce;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
@@ -16,6 +13,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class mapred5 {
     static class Mapper5 extends TableMapper<ImmutableBytesWritable, Text> {
@@ -28,7 +27,7 @@ public class mapred5 {
         protected void setup(Context context) throws IOException, InterruptedException {
             Configuration hbaseConfig = HBaseConfiguration.create();
             conn = ConnectionFactory.createConnection(hbaseConfig);
-            this.table = conn.getTable(TableName.valueOf("21402752Q4"));
+            this.table = conn.getTable(TableName.valueOf("A:C"));
         }
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
@@ -38,66 +37,57 @@ public class mapred5 {
         }
         public void map(ImmutableBytesWritable row, Result value, Context context) throws IOException, InterruptedException {
             String[] splitKey = (new String(row.get())).split("/");
-            String year = splitKey[1];
-            String ueid = splitKey[0];
+            String year = splitKey[0];
+            String ueid = splitKey[1];
             int y = (9999-(Integer.valueOf(year)));
             String y2 = String.valueOf(y);
-            String clé = y2+"/"+ueid;
-            Get get = new Get(clé.getBytes());
-            get.addColumn("#".getBytes(), "R".getBytes());
-            Result result = table.get(get);
-            boolean check = false;
+            String clé = ueid+"/"+y2;
+            Result result;
+            try {
+                Scan   scanner = new Scan();
+                scanner.withStartRow(clé.getBytes());
+                scanner.setMaxResultSize(1);
+                scanner.setCacheBlocks(false);
+                scanner.addFamily(Bytes.toBytes("I"));
 
-            if (result == null){
+                ResultScanner resultScanner = table.getScanner(scanner);
+                result = resultScanner.next();
 
-                return;
-            }
-            String[] splitrate;
-            String rate = new String();
-            String uename = new String();
-
-            byte[]valuerate = result.getValue(Bytes.toBytes("#"), Bytes.toBytes("R"));
-
-
-            String valueR = Bytes.toString(valuerate);
-            //System.out.println(valueR);
-                      if(valueR!=null){
-                splitrate = valueR.split("/");
-                uename = splitrate[0];
-                rate = splitrate[1];
-            }
-                      else{
-                          check = true;}
-           // System.out.println(uename);
-           // System.out.println(rate);
-
-
-
-
-             for (Cell cell: value.listCells()) {
-                if (CellUtil.cloneFamily(cell).equals("I".getBytes())){
-                    String instructor = Bytes.toString(CellUtil.cloneValue(cell));
-                    String outKey = instructor + "/" + year;
-
-                    String Outvalue = ueid + "/" + uename + "/" + rate;
-                    System.out.println(outKey);
-                    System.out.println(Outvalue);
-
-                    if (check == false) {
-
-                        context.write(
-                                new ImmutableBytesWritable(outKey.getBytes()),
-                                new Text(Outvalue));
-
-                    }
+                if ((result == null)) {
+                    System.out.println("key doesn't exists (mapred5): " + clé);
+                    //requested key doesn't exist
+                    return;
                 }
+
+                ArrayList<String> list = new ArrayList();
+                Map<byte[], byte[]> familyMap = result.getFamilyMap(Bytes.toBytes("I"));
+                for(Map.Entry<byte[], byte[]> entry:familyMap.entrySet()) {
+                    list.add(entry.getValue().toString());
                 }
+
+                String instructeur = String.valueOf(list);
+
+                String valeurTaux = new String(value.value());
+                String[] splitvalue = (new String(row.get())).split("/");
+                String uename = splitvalue[0];
+                String rate = splitvalue[1];
+
+
+                String key = instructeur+"/"+year;
+
+                String outvalue = ueid+"/"+uename+"/"+rate;
+
+                context.write(
+                        new ImmutableBytesWritable(key.getBytes()),
+                        new Text(outvalue));
+
+
             }
-
-
-
-
-
+            catch (HBaseIOException e){
+                e.printStackTrace();
+                System.err.println("An error occurred in CreateTempTable Mapper");
+            }
+        }
 
     }
     public static class Reducer5 extends TableReducer<ImmutableBytesWritable, Text, ImmutableBytesWritable> {
@@ -144,7 +134,7 @@ public class mapred5 {
 // set other scan attrs
 
         TableMapReduceUtil.initTableMapperJob(
-                "A:C",      // input table
+                "21402752Q4",      // input table
                 scan,             // Scan instance to control CF and attribute selection
                 mapred5.Mapper5.class,   // mapper class
                 ImmutableBytesWritable.class,             // mapper output key
@@ -164,3 +154,4 @@ public class mapred5 {
         }
     }
 }
+
