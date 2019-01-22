@@ -69,7 +69,7 @@ public class mapred5 {
                 Map<byte[], byte[]> familyMap = result.getFamilyMap(Bytes.toBytes("I"));
                 for(Map.Entry<byte[], byte[]> entry:familyMap.entrySet()) {
                     String key = new String(entry.getValue());
-                    System.out.println(key);
+                   // System.out.println(key);
                     context.write(
                             new ImmutableBytesWritable(key.getBytes()),
                             new Text(outvalue));
@@ -93,11 +93,12 @@ public class mapred5 {
            String resu="";
             for (Text text : values) {
                 resu = text.toString();
+                System.out.println(resu);
             }
 
             Put insHBase = new Put(key.get());
             // insert sum value to hbase
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(resu));
+            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(resu));
             // write data to Hbase table
             context.write(null, insHBase);
 
