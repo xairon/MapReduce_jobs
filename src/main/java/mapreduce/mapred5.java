@@ -64,7 +64,7 @@ public class mapred5 {
                 for(Map.Entry<byte[], byte[]> entry:familyMap.entrySet()) {
                     list.add(entry.getValue().toString());
                 }
-
+                System.out.println(list);
                 String instructeur = String.valueOf(list);
 
                 String valeurTaux = new String(value.value());
