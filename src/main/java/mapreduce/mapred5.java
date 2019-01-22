@@ -90,27 +90,19 @@ public class mapred5 {
         public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
 
-
-
-            String Outvalue = new String();
-            String clé  = key.toString();
-            for(Text text : values) {
-                Outvalue = text.toString();
-
+           String resu="";
+            for (Text text : values) {
+                resu = text.toString();
             }
 
-
-            // create hbase put with rowkey as date
-
-            Put insHBase = new Put(clé.getBytes());
+            Put insHBase = new Put(key.get());
             // insert sum value to hbase
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(Outvalue));
+            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("G"), Bytes.toBytes(resu));
             // write data to Hbase table
             context.write(null, insHBase);
 
         }
     }
-
     public static void main(String[] args) throws Exception {
         Configuration config = HBaseConfiguration.create();
 
