@@ -59,14 +59,27 @@ public class mapred5 {
                     return;
                 }
 
-                ArrayList<String> list = new ArrayList();
+                /*ArrayList<String> list = new ArrayList();
                 Map<byte[], byte[]> familyMap = result.getFamilyMap(Bytes.toBytes("I"));
                 for(Map.Entry<byte[], byte[]> entry:familyMap.entrySet()) {
                     list.add(entry.getValue().toString());
                 }
-                System.out.println(list);
-                String instructeur = String.valueOf(list);
+                */
+                byte[] q = new byte[0];
+                CellScanner cellScanner = result.cellScanner();
+                while (cellScanner.advance()) {
 
+                    Cell cell = cellScanner.current();
+                    q = Bytes.copy(cell.getQualifierArray(),
+                            cell.getQualifierOffset(),
+                            cell.getQualifierLength());
+
+
+
+                }
+
+                String instructeur = String.valueOf(q);
+                System.out.println(instructeur);
                 String valeurTaux = new String(value.value());
                 String[] splitvalue = valeurTaux.split("/");
                 String uename = splitvalue[0];
