@@ -89,21 +89,23 @@ public class mapred5 {
 
         public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
+            String resu = null;
+            // loop through different sales vales and add it to sum
+            for (Text inputvalue : values) {
 
-           String resu="";
-            for (Text text : values) {
-                resu = text.toString();
-                System.out.println(resu);
+                resu = inputvalue.toString();
             }
+
 
             Put insHBase = new Put(key.get());
             // insert sum value to hbase
+
             insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(resu));
             // write data to Hbase table
             context.write(null, insHBase);
 
         }
-    }
+        }
     public static void main(String[] args) throws Exception {
         Configuration config = HBaseConfiguration.create();
 
