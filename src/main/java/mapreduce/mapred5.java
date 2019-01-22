@@ -89,19 +89,27 @@ public class mapred5 {
 
         public void reduce(ImmutableBytesWritable key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
-            String resu = null;
-            // loop through different sales vales and add it to sum
-            for (Text inputvalue : values) {
 
-                resu = inputvalue.toString();
+            Put insHBase = new Put(key.get());
+            // loop through different sales vales and add it to sum
+            for (Text text : values) {
+
+                String[] splitvalue = Bytes.toString(text.copyBytes()).split("/");
+                String ueid = splitvalue[0];
+                String year = splitvalue[1];
+                String uename = splitvalue[2];
+                String rate = splitvalue[3];
+                insHBase.addColumn(
+                        Bytes.toBytes("#"),
+                        Bytes.toBytes(ueid+"/"+year+"/"+uename),
+                        Bytes.toBytes(rate)
+                );
             }
 
 
-            Put insHBase = new Put(key.get());
-            // insert sum value to hbase
-            //System.out.println(resu);
-            //System.out.println(key.toString());
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(resu));
+
+
+
             // write data to Hbase table
             context.write(null, insHBase);
 
