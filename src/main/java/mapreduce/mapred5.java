@@ -67,7 +67,7 @@ public class mapred5 {
 
 
 
-                String instructeur = list;
+                String instructeur = list.substring(0,list.length()-1);
                 System.out.println(instructeur);
                 String valeurTaux = new String(value.value());
                 String[] splitvalue = valeurTaux.split("/");
