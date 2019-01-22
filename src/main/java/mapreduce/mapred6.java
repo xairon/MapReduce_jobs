@@ -48,7 +48,7 @@ public class mapred6 {
             Result result;
             try {
                 Scan firstUEScanner = new Scan();
-                firstUEScanner.withStartRow(etu.getBytes());
+                firstUEScanner.withStartRow(etu.getBytes(), true);
                 firstUEScanner.setMaxResultSize(1);
                 firstUEScanner.setCacheBlocks(false);
 

@@ -52,7 +52,7 @@ public class CreateTempTable {
             Result result;
             try {
                 Scan firstUEScanner = new Scan();
-                firstUEScanner.withStartRow(courseKey.getBytes());
+                firstUEScanner.withStartRow(courseKey.getBytes(),true);
                 firstUEScanner.setMaxResultSize(1);
                 firstUEScanner.setCacheBlocks(false);
 

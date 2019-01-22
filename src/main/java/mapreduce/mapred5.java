@@ -45,7 +45,7 @@ public class mapred5 {
             Result result;
             try {
                 Scan   scanner = new Scan();
-                scanner.withStartRow(clé.getBytes());
+                scanner.withStartRow(clé.getBytes(), true);
                 scanner.setMaxResultSize(1);
                 scanner.setCacheBlocks(false);
                 scanner.addFamily(Bytes.toBytes("I"));
