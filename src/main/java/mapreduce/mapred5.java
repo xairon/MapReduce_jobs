@@ -58,27 +58,15 @@ public class mapred5 {
                     //requested key doesn't exist
                     return;
                 }
-
-                /*ArrayList<String> list = new ArrayList();
+                ArrayList<String> list = new ArrayList();
                 Map<byte[], byte[]> familyMap = result.getFamilyMap(Bytes.toBytes("I"));
                 for(Map.Entry<byte[], byte[]> entry:familyMap.entrySet()) {
                     list.add(entry.getValue().toString());
                 }
-                */
-                byte[] q = new byte[0];
-                CellScanner cellScanner = result.cellScanner();
-                while (cellScanner.advance()) {
-
-                    Cell cell = cellScanner.current();
-                    q = Bytes.copy(cell.getQualifierArray(),
-                            cell.getQualifierOffset(),
-                            cell.getQualifierLength());
 
 
 
-                }
-
-                String instructeur = String.valueOf(q);
+                String instructeur = String.valueOf(list);
                 System.out.println(instructeur);
                 String valeurTaux = new String(value.value());
                 String[] splitvalue = valeurTaux.split("/");
@@ -86,13 +74,13 @@ public class mapred5 {
                 String rate = splitvalue[1];
 
 
-                String key = instructeur+"/"+year;
+                String key = instructeur;
 
-                String outvalue = ueid+"/"+uename+"/"+rate;
+                String outvalue = ueid+"/"+year+"/"+uename+"/"+rate;
 
                 context.write(
-                        new ImmutableBytesWritable(key.getBytes()),
-                        new Text(outvalue));
+                        new ImmutableBytesWritable(outvalue.getBytes()),
+                        new Text(key));
 
 
             }
@@ -109,23 +97,23 @@ public class mapred5 {
                 throws IOException, InterruptedException {
 
             String[] splitKey = (new String(key.get())).split("/");
-            String intervenant = splitKey[0];
-            String year = splitKey[1];
-            String Outvalue = new String();
-            String clé = intervenant;
-            for(Text text : values){
-                String[] splittedValue = Bytes.toString(text.copyBytes()).split("/");
-                String ueid = splittedValue[0];
-                String ueName = splittedValue[1];
-                String rate = splittedValue[2];
-                Outvalue = ueid+"/"+year+"/"+ueName+"/"+rate;
+
+
+            Put insHBase = null;
+            // insert sum value to hbase
+            for(Text text : values) {
+               String [] temp = text.toString().split("/");
+               for(int i = 0;i<temp.length;i++){
+              insHBase = new Put(temp[i].getBytes());
+              insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(values.toString()));
+
+               }
             }
 
             // create hbase put with rowkey as date
 
-            Put insHBase = new Put(clé.getBytes());
-            // insert sum value to hbase
-            insHBase.addColumn(Bytes.toBytes("#"), Bytes.toBytes("R"), Bytes.toBytes(Outvalue));
+
+
             // write data to Hbase table
             context.write(null, insHBase);
 
