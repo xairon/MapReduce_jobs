@@ -52,7 +52,7 @@ public class mapred5 {
 
                 ResultScanner resultScanner = table.getScanner(scanner);
                 result = resultScanner.next();
-                String valeur = "";
+
                 if ((result == null)) {
                     System.out.println("key doesn't exists (mapred5): " + clé);
                     //requested key doesn't exist
@@ -63,28 +63,18 @@ public class mapred5 {
                 String[] splitvalue = valeurTaux.split("/");
                 String uename = splitvalue[0];
                 String rate = splitvalue[1];
-                //String key = instructeur;
 
                 String outvalue = ueid+"/"+year+"/"+uename+"/"+rate;
                 //String list = new String();
                 Map<byte[], byte[]> familyMap = result.getFamilyMap(Bytes.toBytes("I"));
                 for(Map.Entry<byte[], byte[]> entry:familyMap.entrySet()) {
-                    valeur = new String(entry.getValue());
+                    String key = new String(entry.getValue());
+                    System.out.println(key);
                     context.write(
-                            new ImmutableBytesWritable(valeur.getBytes()),
+                            new ImmutableBytesWritable(key.getBytes()),
                             new Text(outvalue));
 
                 }
-
-
-
-
-
-
-
-
-
-
 
 
             }
@@ -101,7 +91,7 @@ public class mapred5 {
                 throws IOException, InterruptedException {
 
 
-            //String year = splitKey[1];
+
             String Outvalue = new String();
             String clé  = key.copyBytes().toString();
             for(Text text : values) {
@@ -156,4 +146,3 @@ public class mapred5 {
         }
     }
 }
-
